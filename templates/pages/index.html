@@ -1,0 +1,41 @@
+{% extends 'layouts/main.html' %}
+{% block content %}
+  <!-- Hero Section -->
+  <section class="pt-32 pb-20 bg-indigo-600 overflow-hidden relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+        <div class="text-white">
+          <h2 class="text-5xl md:text-6xl font-bold mb-6 leading-tight">Find Your Perfect Job with AI</h2>
+          <p class="text-xl mb-8 text-gray-100">WorkHub uses intelligent matching to connect talented professionals with their dream opportunities. Skip the endless scrolling and let AI do the work.</p>
+          <div class="flex flex-col sm:flex-row gap-4">
+            <a href="#" class="bg-white text-indigo-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition duration-300 text-center shadow-lg">Start Job Search</a>
+            <a href="#" class="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-indigo-600 transition duration-300 text-center">Post a Job</a>
+          </div>
+        </div>
+        <div class="hidden md:block">
+          <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-2xl p-8 space-y-4 border border-white border-opacity-20">
+            <div class="bg-white bg-opacity-20 rounded-lg p-4">
+              <div>
+                <p class="text-white font-semibold">AI Match Found!</p>
+                <p class="text-gray-200 text-sm">Senior Developer at TechCorp</p>
+              </div>
+            </div>
+            <div class="bg-white bg-opacity-20 rounded-lg p-4">
+              <div>
+                <p class="text-white font-semibold">Instant Application</p>
+                <p class="text-gray-200 text-sm">One-click apply enabled</p>
+              </div>
+            </div>
+            <div class="bg-white bg-opacity-20 rounded-lg p-4">
+              <div>
+                <p class="text-white font-semibold">Real-time Updates</p>
+                <p class="text-gray-200 text-sm">Track application status</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+{% endblock %}
