@@ -1,36 +1,30 @@
 {% extends 'layouts/main.html' %}
 {% block content %}
   <!-- Hero Section -->
-  <section class="pt-32 pb-20 bg-indigo-600 overflow-hidden relative">
+  <section class="pt-20 pb-12 bg-cyan-600 overflow-hidden relative">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
       <div class="grid md:grid-cols-2 gap-12 items-center">
         <div class="text-white">
-          <h2 class="text-5xl md:text-6xl font-bold mb-6 leading-tight">Find Your Perfect Job with AI</h2>
+          <h2 class="text-4xl md:text-5xl font-bold mb-6 leading-tight">Find Your Perfect Job with AI</h2>
           <p class="text-xl mb-8 text-gray-100">WorkHub uses intelligent matching to connect talented professionals with their dream opportunities. Skip the endless scrolling and let AI do the work.</p>
           <div class="flex flex-col sm:flex-row gap-4">
-            <a href="#" class="bg-white text-indigo-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition duration-300 text-center shadow-lg">Start Job Search</a>
-            <a href="#" class="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-indigo-600 transition duration-300 text-center">Post a Job</a>
+            <a href="#" class="bg-white text-cyan-600 px-8 py-2 rounded-lg font-semibold hover:bg-gray-100 transition duration-300 text-center shadow-lg">Start Job Search</a>
+            <a href="#" class="border-2 border-white text-white px-8 py-2 rounded-lg font-semibold hover:bg-white hover:text-cyan-600 transition duration-300 text-center">Post a Job</a>
           </div>
         </div>
         <div class="hidden md:block">
-          <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-2xl p-8 space-y-4 border border-white border-opacity-20">
+          <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-2xl px-8 py-4 space-y-3 border border-white border-opacity-20">
             <div class="bg-white bg-opacity-20 rounded-lg p-4">
-              <div>
-                <p class="text-white font-semibold">AI Match Found!</p>
-                <p class="text-gray-200 text-sm">Senior Developer at TechCorp</p>
-              </div>
+              <p class="text-white font-semibold">AI Match Found!</p>
+              <p class="text-gray-200 text-sm">Senior Developer at TechCorp</p>
             </div>
             <div class="bg-white bg-opacity-20 rounded-lg p-4">
-              <div>
-                <p class="text-white font-semibold">Instant Application</p>
-                <p class="text-gray-200 text-sm">One-click apply enabled</p>
-              </div>
+              <p class="text-white font-semibold">Instant Application</p>
+              <p class="text-gray-200 text-sm">One-click apply enabled</p>
             </div>
             <div class="bg-white bg-opacity-20 rounded-lg p-4">
-              <div>
-                <p class="text-white font-semibold">Real-time Updates</p>
-                <p class="text-gray-200 text-sm">Track application status</p>
-              </div>
+              <p class="text-white font-semibold">Real-time Updates</p>
+              <p class="text-gray-200 text-sm">Track application status</p>
             </div>
           </div>
         </div>
@@ -38,4 +32,164 @@
     </div>
   </section>
 
+  <!-- Features Section -->
+  <section id="features" class="py-10 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-8">
+        <h2 class="text-4xl font-bold text-gray-900 mb-4">Powerful Features</h2>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">Everything you need to find the perfect job or hire the best talent</p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300">
+          <div class="flex justify-between gap-2 mb-4">
+            <div class="bg-gray-100 w-12 h-12 rounded-lg flex items-center justify-center">
+              <i class="fa-solid fa-brain text-2xl text-cyan-600"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 my-auto">AI-Powered Matching</h3>
+          </div>
+          <p class="text-gray-600 mb-4">Our intelligent algorithm analyzes your skills, interests, and experience to recommend the most relevant job opportunities tailored just for you.</p>
+          <ul class="space-y-2 text-gray-600">
+            <li class="flex items-center">
+              <i class="fa-solid fa-check text-green-500 mr-2"></i>Smart skill matching
+            </li>
+            <li class="flex items-center">
+              <i class="fa-solid fa-check text-green-500 mr-2"></i>Keyword optimization
+            </li>
+            <li class="flex items-center">
+              <i class="fa-solid fa-check text-green-500 mr-2"></i>Personalized recommendations
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300">
+          <div class="flex justify-between gap-2 mb-4">
+            <div class="bg-gray-100 w-12 h-12 rounded-lg flex items-center justify-center">
+              <i class="fa-solid fa-users-gear text-2xl text-blue-600"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 m-auto">Role-Based Access</h3>
+          </div>
+          <p class="text-gray-600 mb-4">Secure registration and authentication system with customized dashboards for job seekers, recruiters, and administrators.</p>
+          <ul class="space-y-2 text-gray-600">
+            <li class="flex items-center">
+              <i class="fa-solid fa-check text-green-500 mr-2"></i>Secure authentication
+            </li>
+            <li class="flex items-center">
+              <i class="fa-solid fa-check text-green-500 mr-2"></i>Multiple user types
+            </li>
+            <li class="flex items-center">
+              <i class="fa-solid fa-check text-green-500 mr-2"></i>Custom dashboards
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300">
+          <div class="flex justify-between gap-2 mb-4">
+            <div class="bg-gray-100 w-12 h-12 rounded-lg flex items-center justify-center">
+              <i class="fa-solid fa-bolt text-2xl text-green-600"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 m-auto">Quick Application</h3>
+          </div>
+          <p class="text-gray-600 mb-4">Apply to jobs with a single click. No more lengthy forms or repetitive information entry. Your profile is your application.</p>
+          <ul class="space-y-2 text-gray-600">
+            <li class="flex items-center">
+              <i class="fa-solid fa-check text-green-500 mr-2"></i>One-click apply
+            </li>
+            <li class="flex items-center">
+              <i class="fa-solid fa-check text-green-500 mr-2"></i>No lengthy forms
+            </li>
+            <li class="flex items-center">
+              <i class="fa-solid fa-check text-green-500 mr-2"></i>Instant submission
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300">
+          <div class="flex justify-between gap-2 mb-4">
+            <div class="bg-gray-100 w-12 h-12 rounded-lg flex items-center justify-center">
+              <i class="fa-solid fa-envelope-open-text text-2xl text-purple-600"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 m-auto">Smart Notifications</h3>
+          </div>
+          <p class="text-gray-600 mb-4">Stay informed with automated email alerts about application status, new job matches, and recruiter responses.</p>
+          <ul class="space-y-2 text-gray-600">
+            <li class="flex items-center">
+              <i class="fa-solid fa-check text-green-500 mr-2"></i>Real-time updates
+            </li>
+            <li class="flex items-center">
+              <i class="fa-solid fa-check text-green-500 mr-2"></i>Email notifications
+            </li>
+            <li class="flex items-center">
+              <i class="fa-solid fa-check text-green-500 mr-2"></i>Status tracking
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300">
+          <div class="flex justify-between gap-2 mb-4">
+            <div class="bg-gray-100 w-12 h-12 rounded-lg flex items-center justify-center">
+              <i class="fa-solid fa-file-circle-check text-2xl text-red-600"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 m-auto">Quality Screening</h3>
+          </div>
+          <p class="text-gray-600 mb-4">Recruiters receive only relevant applications, reducing screening time and improving hiring efficiency dramatically.</p>
+          <ul class="space-y-2 text-gray-600">
+            <li class="flex items-center">
+              <i class="fa-solid fa-check text-green-500 mr-2"></i>Pre-qualified candidates
+            </li>
+            <li class="flex items-center">
+              <i class="fa-solid fa-check text-green-500 mr-2"></i>Reduced screening time
+            </li>
+            <li class="flex items-center">
+              <i class="fa-solid fa-check text-green-500 mr-2"></i>Better matches
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300">
+          <div class="flex justify-between gap-2 mb-4">
+            <div class="bg-gray-100 w-12 h-12 rounded-lg flex items-center justify-center">
+              <i class="fa-solid fa-shield-halved text-2xl text-yellow-600"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 m-auto">Secure Platform</h3>
+          </div>
+          <p class="text-gray-600 mb-4">Your data is protected with enterprise-grade security. Safe authentication and encrypted data storage ensure peace of mind.</p>
+          <ul class="space-y-2 text-gray-600">
+            <li class="flex items-center">
+              <i class="fa-solid fa-check text-green-500 mr-2"></i>Data encryption
+            </li>
+            <li class="flex items-center">
+              <i class="fa-solid fa-check text-green-500 mr-2"></i>Privacy protection
+            </li>
+            <li class="flex items-center">
+              <i class="fa-solid fa-check text-green-500 mr-2"></i>Secure authentication
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section id="how-it-works" class="py-10 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-2">
+        <h2 class="text-4xl font-bold text-gray-900 mb-2">How It Works</h2>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">Get started in three simple steps</p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300">
+          <h3 class="text-2xl font-bold text-gray-900 mb-4">Create Your Profile</h3>
+          <p class="text-gray-600">Sign up and build your professional profile with your skills, experience, and career preferences. The more detailed, the better your matches.</p>
+        </div>
+        <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300">
+          <h3 class="text-2xl font-bold text-gray-900 mb-4">Get AI Recommendations</h3>
+          <p class="text-gray-600">Our AI analyzes your profile and matches you with relevant opportunities. Browse personalized job recommendations tailored to your goals.</p>
+        </div>
+        <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition duration-300">
+          <h3 class="text-2xl font-bold text-gray-900 mb-4">Apply Instantly</h3>
+          <p class="text-gray-600">Apply to jobs with one click and track your applications in real-time. Receive notifications when recruiters review your profile.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 {% endblock %}
