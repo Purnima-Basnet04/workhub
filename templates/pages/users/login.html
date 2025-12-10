@@ -1,0 +1,36 @@
+{% extends 'layouts/main.html' %}
+
+{% block content %}
+  {% with input_classes='w-full p-3 border-2 border-cyan-300 rounded-lg focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition-all outline-none' error_classes='text-sm text-red-500' %}
+    <div class="min-h-[80vh] flex justify-center p-6 my-6">
+      <div class="bg-white/80 backdrop-blur-md border-2 border-cyan-200 rounded-2xl w-full max-w-lg px-10 py-10 shadow-xl">
+        <div class="text-center mb-6">
+          <div class="w-24 h-24 mx-auto mb-4 p-2 rounded-full border-2 border-cyan-600 flex items-center justify-center shadow-lg">
+            <img src="/media/system_image/logo1.png" alt="Logo" />
+          </div>
+          <h1 class="text-2xl font-bold text-cyan-800">Login</h1>
+          <p class="text-gray-600">Access your account</p>
+        </div>
+
+        <form method="POST" class="space-y-5">
+          {% csrf_token %}
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Username</label>
+            <input type="text" name="username" class="{{ input_classes }}" value="{{ request.POST.username }}" />
+            {% if errors.username %}
+              <span class="{{ error_classes }}">{{ errors.username }}</span>
+            {% endif %}
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-1">Password</label>
+            <input type="password" name="password" class="{{ input_classes }}" />
+            {% if errors.password %}
+              <span class="{{ error_classes }}">{{ errors.password }}</span>
+            {% endif %}
+          </div>
+          <button class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-3 rounded-lg transition shadow-lg hover:shadow-xl">Login</button>
+        </form>
+      </div>
+    </div>
+  {% endwith %}
+{% endblock %}
