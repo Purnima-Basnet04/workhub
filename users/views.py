@@ -8,8 +8,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 
 def register(request):
-    if request.user.is_authenticated:
-        return redirect('/dashboard')
+    # if request.user.is_authenticated:
+    #     return redirect('/dashboard')
     if request.method == "POST":
         user_form = UserRegistrationForm(request.POST)
         profile_form = ProfileForm(request.POST, request.FILES)
@@ -31,8 +31,8 @@ def register(request):
 
 
 def login_user(request):
-    if request.user.is_authenticated:
-        return redirect('/dashboard')
+    # if request.user.is_authenticated:
+    #     return redirect('/dashboard')
     errors = {}
     username = ""
     if request.method == "POST":
