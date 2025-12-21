@@ -1,0 +1,516 @@
+{% extends 'layouts/main.html' %}
+{% block content %}
+{% with error_classes='text-sm text-red-500' %}
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="mb-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Edit Profile</h1>
+          <p class="mt-1 text-sm text-gray-600">Update your personal information and preferences</p>
+        </div>
+        <a href="{% url 'profile' %}"
+          class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+          <i class="fas fa-arrow-left mr-2"></i>
+          Back to Profile
+        </a>
+      </div>
+    </div>
+    {% if profile_form.errors %}
+    {{ profile_form.errors }}
+    {% endif %}
+    {% if user_form.errors %}
+    {{ user_form.errors }}
+    {% endif %}
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="lg:col-span-1 space-y-2">
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Profile Picture</h2>
+            <div class="flex flex-col items-center">
+              <div class="relative mb-4 profile_image-container">
+                <img id="profilePreview" src="{{ profile.profile_image.url }}" alt="Profile"
+                  class="w-32 h-32 rounded-full border-4 border-gray-200 object-cover" />
+                <label for="id_profile_image"
+                  class="absolute bottom-1 right-1 bg-cyan-600 text-white rounded-full py-1 px-2 cursor-pointer hover:bg-cyan-700 transition"><i
+                    class="fas fa-camera"></i></label>
+              </div>
+              <input type="file" name="profile_image" id="id_profile_image" accept="image/*" class="hidden" />
+              <p class="text-xs text-gray-500 text-center">Click the camera icon to upload new image</p>
+              {% if profile_form.errors.profile_image %}
+              <div class="{{ error_classes }}">{{ profile_form.errors.profile_image }}</div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
+            <div class="space-y-4">
+              <div>
+                <label for="id_username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                <input type="text" name="username" id="id_username" value="{{ user.username }}"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent" />
+                {% if user_form.errors.username %}
+                <div class="{{ error_classes }}">{{ user_form.errors.username }}</div>
+                {% endif %}
+              </div>
+              <div>
+                <label for="id_email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input type="email" name="email" id="id_email" value="{{ user.email }}"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent" />
+                {% if user_form.errors.email %}
+                <div class="{{ error_classes }}">{{ user_form.errors.email }}</div>
+                {% endif %}
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label for="id_first_name" class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                  <input type="text" name="first_name" id="id_first_name" value="{{ user.first_name }}"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent" />
+                  {% if user_form.errors.first_name %}
+                  <div class="{{ error_classes }}">{{ user_form.errors.first_name }}</div>
+                  {% endif %}
+                </div>
+                <div>
+                  <label for="id_last_name" class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                  <input type="text" name="last_name" id="id_last_name" value="{{ user.last_name }}"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent" />
+                  {% if user_form.errors.last_name %}
+                  <div class="{{ error_classes }}">{{ user_form.errors.last_name }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              <div>
+                <label for="id_gender" class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                <select name="gender" id="id_gender"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                  <option value="Male" {% if profile.gender == "Male" %}selected{% endif %}>Male</option>
+                  <option value="Female" {% if profile.gender == "Female" %}selected{% endif %}>Female</option>
+                  <option value="Others" {% if profile.gender == "Others" %}selected{% endif %}>Others</option>
+                </select>
+                {% if profile_form.errors.gender %}
+                <div class="{{ error_classes }}">{{ profile_form.errors.gender }}</div>
+                {% endif %}
+              </div>
+              <div>
+                <label for="id_dob" class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+                <input type="date" name="dob" id="id_dob" value="{{ profile.dob|date:'Y-m-d' }}"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent" />
+                {% if profile_form.errors.gender %}
+                <div class="{{ error_classes }}">{{ profile_form.errors.gender }}</div>
+                {% endif %}
+              </div>
+              <div>
+                <label for="id_role" class="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                <select name="role" id="id_role"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                  <option value="jobseeker" {% if profile.role == "jobseeker" %}selected{% endif %}>Job Seeker</option>
+                  <option value="recruiter" {% if profile.role == "recruiter" %}selected{% endif %}>Recruiter</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4"><i class="fas fa-file-pdf mr-2 text-gray-600"></i>
+              Resume</h2>
+            <div>
+              <label for="id_resume" class="block text-sm font-medium text-gray-700 mb-1">Upload Resume</label>
+              {% if profile.resume %}
+              <div class="mb-2 p-3 bg-cyan-50 border border-cyan-200 rounded-md flex items-center justify-between">
+                <div class="flex items-center">
+                  <i class="fas fa-file-pdf text-cyan-600 mr-2"></i>
+                  <span class="text-sm text-gray-700">Current Resume</span>
+                </div>
+                <a href="{{ profile.resume.url }}" target="_blank" class="text-sm text-cyan-600 hover:text-cyan-700"><i
+                    class="fas fa-external-link-alt mr-1"></i>View</a>
+              </div>
+              {% endif %}
+              <input type="file" name="resume" id="id_resume" accept=".pdf,.doc,.docx"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent" />
+              <p class="mt-1 text-xs text-gray-500">Upload PDF, DOC, or DOCX file</p>
+              {% if profile_form.errors.resume %}
+              <div class="{{ error_classes }}">{{ profile_form.errors.resume }}</div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="lg:col-span-2 space-y-2">
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4"><i class="fas fa-address-book mr-2 text-gray-600"></i>
+              Contact Information</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label for="id_phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                <input type="tel" name="phone" id="id_phone" value="{{ profile.phone }}" maxlength="10"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent" />
+                {% if profile_form.errors.phone %}
+                <div class="{{ error_classes }}">{{ profile_form.errors.phone }}</div>
+                {% endif %}
+              </div>
+              <div>
+                <label for="id_nationality" class="block text-sm font-medium text-gray-700 mb-1">Nationality</label>
+                <select name="nationality" id="id_nationality" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                  <option value="{{ profile.nationality }}">{{ profile.nationality }}</option>
+                  <option value="Afghanistan">Afghanistan</option>
+                  <option value="Åland Islands">Åland Islands</option>
+                  <option value="Albania">Albania</option>
+                  <option value="Algeria">Algeria</option>
+                  <option value="American Samoa">American Samoa</option>
+                  <option value="Andorra">Andorra</option>
+                  <option value="Angola">Angola</option>
+                  <option value="Anguilla">Anguilla</option>
+                  <option value="Antarctica">Antarctica</option>
+                  <option value="Antigua and Barbuda">Antigua and Barbuda</option>
+                  <option value="Argentina">Argentina</option>
+                  <option value="Armenia">Armenia</option>
+                  <option value="Aruba">Aruba</option>
+                  <option value="Australia">Australia</option>
+                  <option value="Austria">Austria</option>
+                  <option value="Azerbaijan">Azerbaijan</option>
+                  <option value="Bahamas">Bahamas</option>
+                  <option value="Bahrain">Bahrain</option>
+                  <option value="Bangladesh">Bangladesh</option>
+                  <option value="Barbados">Barbados</option>
+                  <option value="Belarus">Belarus</option>
+                  <option value="Belgium">Belgium</option>
+                  <option value="Belize">Belize</option>
+                  <option value="Benin">Benin</option>
+                  <option value="Bermuda">Bermuda</option>
+                  <option value="Bhutan">Bhutan</option>
+                  <option value="Bolivia">Bolivia</option>
+                  <option value="Bosnia and Herzegovina">Bosnia and Herzegovina</option>
+                  <option value="Botswana">Botswana</option>
+                  <option value="Bouvet Island">Bouvet Island</option>
+                  <option value="Brazil">Brazil</option>
+                  <option value="British Indian Ocean Territory">British Indian Ocean Territory</option>
+                  <option value="Brunei Darussalam">Brunei Darussalam</option>
+                  <option value="Bulgaria">Bulgaria</option>
+                  <option value="Burkina Faso">Burkina Faso</option>
+                  <option value="Burundi">Burundi</option>
+                  <option value="Cambodia">Cambodia</option>
+                  <option value="Cameroon">Cameroon</option>
+                  <option value="Canada">Canada</option>
+                  <option value="Cape Verde">Cape Verde</option>
+                  <option value="Cayman Islands">Cayman Islands</option>
+                  <option value="Central African Republic">Central African Republic</option>
+                  <option value="Chad">Chad</option>
+                  <option value="Chile">Chile</option>
+                  <option value="China">China</option>
+                  <option value="Christmas Island">Christmas Island</option>
+                  <option value="Cocos (Keeling) Islands">Cocos (Keeling) Islands</option>
+                  <option value="Colombia">Colombia</option>
+                  <option value="Comoros">Comoros</option>
+                  <option value="Congo">Congo</option>
+                  <option value="Congo, The Democratic Republic of The">Congo, The Democratic Republic of The</option>
+                  <option value="Cook Islands">Cook Islands</option>
+                  <option value="Costa Rica">Costa Rica</option>
+                  <option value="Cote D'ivoire">Cote D'ivoire</option>
+                  <option value="Croatia">Croatia</option>
+                  <option value="Cuba">Cuba</option>
+                  <option value="Cyprus">Cyprus</option>
+                  <option value="Czech Republic">Czech Republic</option>
+                  <option value="Denmark">Denmark</option>
+                  <option value="Djibouti">Djibouti</option>
+                  <option value="Dominica">Dominica</option>
+                  <option value="Dominican Republic">Dominican Republic</option>
+                  <option value="Ecuador">Ecuador</option>
+                  <option value="Egypt">Egypt</option>
+                  <option value="El Salvador">El Salvador</option>
+                  <option value="Equatorial Guinea">Equatorial Guinea</option>
+                  <option value="Eritrea">Eritrea</option>
+                  <option value="Estonia">Estonia</option>
+                  <option value="Ethiopia">Ethiopia</option>
+                  <option value="Falkland Islands (Malvinas)">Falkland Islands (Malvinas)</option>
+                  <option value="Faroe Islands">Faroe Islands</option>
+                  <option value="Fiji">Fiji</option>
+                  <option value="Finland">Finland</option>
+                  <option value="France">France</option>
+                  <option value="French Guiana">French Guiana</option>
+                  <option value="French Polynesia">French Polynesia</option>
+                  <option value="French Southern Territories">French Southern Territories</option>
+                  <option value="Gabon">Gabon</option>
+                  <option value="Gambia">Gambia</option>
+                  <option value="Georgia">Georgia</option>
+                  <option value="Germany">Germany</option>
+                  <option value="Ghana">Ghana</option>
+                  <option value="Gibraltar">Gibraltar</option>
+                  <option value="Greece">Greece</option>
+                  <option value="Greenland">Greenland</option>
+                  <option value="Grenada">Grenada</option>
+                  <option value="Guadeloupe">Guadeloupe</option>
+                  <option value="Guam">Guam</option>
+                  <option value="Guatemala">Guatemala</option>
+                  <option value="Guernsey">Guernsey</option>
+                  <option value="Guinea">Guinea</option>
+                  <option value="Guinea-bissau">Guinea-bissau</option>
+                  <option value="Guyana">Guyana</option>
+                  <option value="Haiti">Haiti</option>
+                  <option value="Heard Island and Mcdonald Islands">Heard Island and Mcdonald Islands</option>
+                  <option value="Holy See (Vatican City State)">Holy See (Vatican City State)</option>
+                  <option value="Honduras">Honduras</option>
+                  <option value="Hong Kong">Hong Kong</option>
+                  <option value="Hungary">Hungary</option>
+                  <option value="Iceland">Iceland</option>
+                  <option value="India">India</option>
+                  <option value="Indonesia">Indonesia</option>
+                  <option value="Iran, Islamic Republic of">Iran, Islamic Republic of</option>
+                  <option value="Iraq">Iraq</option>
+                  <option value="Ireland">Ireland</option>
+                  <option value="Isle of Man">Isle of Man</option>
+                  <option value="Israel">Israel</option>
+                  <option value="Italy">Italy</option>
+                  <option value="Jamaica">Jamaica</option>
+                  <option value="Japan">Japan</option>
+                  <option value="Jersey">Jersey</option>
+                  <option value="Jordan">Jordan</option>
+                  <option value="Kazakhstan">Kazakhstan</option>
+                  <option value="Kenya">Kenya</option>
+                  <option value="Kiribati">Kiribati</option>
+                  <option value="Korea, Democratic People's Republic of">Korea, Democratic People's Republic of</option>
+                  <option value="Korea, Republic of">Korea, Republic of</option>
+                  <option value="Kuwait">Kuwait</option>
+                  <option value="Kyrgyzstan">Kyrgyzstan</option>
+                  <option value="Lao People's Democratic Republic">Lao People's Democratic Republic</option>
+                  <option value="Latvia">Latvia</option>
+                  <option value="Lebanon">Lebanon</option>
+                  <option value="Lesotho">Lesotho</option>
+                  <option value="Liberia">Liberia</option>
+                  <option value="Libyan Arab Jamahiriya">Libyan Arab Jamahiriya</option>
+                  <option value="Liechtenstein">Liechtenstein</option>
+                  <option value="Lithuania">Lithuania</option>
+                  <option value="Luxembourg">Luxembourg</option>
+                  <option value="Macao">Macao</option>
+                  <option value="Macedonia, The Former Yugoslav Republic of">Macedonia, The Former Yugoslav Republic of
+                  </option>
+                  <option value="Madagascar">Madagascar</option>
+                  <option value="Malawi">Malawi</option>
+                  <option value="Malaysia">Malaysia</option>
+                  <option value="Maldives">Maldives</option>
+                  <option value="Mali">Mali</option>
+                  <option value="Malta">Malta</option>
+                  <option value="Marshall Islands">Marshall Islands</option>
+                  <option value="Martinique">Martinique</option>
+                  <option value="Mauritania">Mauritania</option>
+                  <option value="Mauritius">Mauritius</option>
+                  <option value="Mayotte">Mayotte</option>
+                  <option value="Mexico">Mexico</option>
+                  <option value="Micronesia, Federated States of">Micronesia, Federated States of</option>
+                  <option value="Moldova, Republic of">Moldova, Republic of</option>
+                  <option value="Monaco">Monaco</option>
+                  <option value="Mongolia">Mongolia</option>
+                  <option value="Montenegro">Montenegro</option>
+                  <option value="Montserrat">Montserrat</option>
+                  <option value="Morocco">Morocco</option>
+                  <option value="Mozambique">Mozambique</option>
+                  <option value="Myanmar">Myanmar</option>
+                  <option value="Namibia">Namibia</option>
+                  <option value="Nauru">Nauru</option>
+                  <option value="Nepal">Nepal</option>
+                  <option value="Netherlands">Netherlands</option>
+                  <option value="Netherlands Antilles">Netherlands Antilles</option>
+                  <option value="New Caledonia">New Caledonia</option>
+                  <option value="New Zealand">New Zealand</option>
+                  <option value="Nicaragua">Nicaragua</option>
+                  <option value="Niger">Niger</option>
+                  <option value="Nigeria">Nigeria</option>
+                  <option value="Niue">Niue</option>
+                  <option value="Norfolk Island">Norfolk Island</option>
+                  <option value="Northern Mariana Islands">Northern Mariana Islands</option>
+                  <option value="Norway">Norway</option>
+                  <option value="Oman">Oman</option>
+                  <option value="Pakistan">Pakistan</option>
+                  <option value="Palau">Palau</option>
+                  <option value="Palestinian Territory, Occupied">Palestinian Territory, Occupied</option>
+                  <option value="Panama">Panama</option>
+                  <option value="Papua New Guinea">Papua New Guinea</option>
+                  <option value="Paraguay">Paraguay</option>
+                  <option value="Peru">Peru</option>
+                  <option value="Philippines">Philippines</option>
+                  <option value="Pitcairn">Pitcairn</option>
+                  <option value="Poland">Poland</option>
+                  <option value="Portugal">Portugal</option>
+                  <option value="Puerto Rico">Puerto Rico</option>
+                  <option value="Qatar">Qatar</option>
+                  <option value="Reunion">Reunion</option>
+                  <option value="Romania">Romania</option>
+                  <option value="Russian Federation">Russian Federation</option>
+                  <option value="Rwanda">Rwanda</option>
+                  <option value="Saint Helena">Saint Helena</option>
+                  <option value="Saint Kitts and Nevis">Saint Kitts and Nevis</option>
+                  <option value="Saint Lucia">Saint Lucia</option>
+                  <option value="Saint Pierre and Miquelon">Saint Pierre and Miquelon</option>
+                  <option value="Saint Vincent and The Grenadines">Saint Vincent and The Grenadines</option>
+                  <option value="Samoa">Samoa</option>
+                  <option value="San Marino">San Marino</option>
+                  <option value="Sao Tome and Principe">Sao Tome and Principe</option>
+                  <option value="Saudi Arabia">Saudi Arabia</option>
+                  <option value="Senegal">Senegal</option>
+                  <option value="Serbia">Serbia</option>
+                  <option value="Seychelles">Seychelles</option>
+                  <option value="Sierra Leone">Sierra Leone</option>
+                  <option value="Singapore">Singapore</option>
+                  <option value="Slovakia">Slovakia</option>
+                  <option value="Slovenia">Slovenia</option>
+                  <option value="Solomon Islands">Solomon Islands</option>
+                  <option value="Somalia">Somalia</option>
+                  <option value="South Africa">South Africa</option>
+                  <option value="South Georgia and The South Sandwich Islands">South Georgia and The South Sandwich
+                    Islands</option>
+                  <option value="Spain">Spain</option>
+                  <option value="Sri Lanka">Sri Lanka</option>
+                  <option value="Sudan">Sudan</option>
+                  <option value="Suriname">Suriname</option>
+                  <option value="Svalbard and Jan Mayen">Svalbard and Jan Mayen</option>
+                  <option value="Swaziland">Swaziland</option>
+                  <option value="Sweden">Sweden</option>
+                  <option value="Switzerland">Switzerland</option>
+                  <option value="Syrian Arab Republic">Syrian Arab Republic</option>
+                  <option value="Taiwan">Taiwan</option>
+                  <option value="Tajikistan">Tajikistan</option>
+                  <option value="Tanzania, United Republic of">Tanzania, United Republic of</option>
+                  <option value="Thailand">Thailand</option>
+                  <option value="Timor-leste">Timor-leste</option>
+                  <option value="Togo">Togo</option>
+                  <option value="Tokelau">Tokelau</option>
+                  <option value="Tonga">Tonga</option>
+                  <option value="Trinidad and Tobago">Trinidad and Tobago</option>
+                  <option value="Tunisia">Tunisia</option>
+                  <option value="Turkey">Turkey</option>
+                  <option value="Turkmenistan">Turkmenistan</option>
+                  <option value="Turks and Caicos Islands">Turks and Caicos Islands</option>
+                  <option value="Tuvalu">Tuvalu</option>
+                  <option value="Uganda">Uganda</option>
+                  <option value="Ukraine">Ukraine</option>
+                  <option value="United Arab Emirates">United Arab Emirates</option>
+                  <option value="United Kingdom">United Kingdom</option>
+                  <option value="United States">United States</option>
+                  <option value="United States Minor Outlying Islands">United States Minor Outlying Islands</option>
+                  <option value="Uruguay">Uruguay</option>
+                  <option value="Uzbekistan">Uzbekistan</option>
+                  <option value="Vanuatu">Vanuatu</option>
+                  <option value="Venezuela">Venezuela</option>
+                  <option value="Viet Nam">Viet Nam</option>
+                  <option value="Virgin Islands, British">Virgin Islands, British</option>
+                  <option value="Virgin Islands, U.S.">Virgin Islands, U.S.</option>
+                  <option value="Wallis and Futuna">Wallis and Futuna</option>
+                  <option value="Western Sahara">Western Sahara</option>
+                  <option value="Yemen">Yemen</option>
+                  <option value="Zambia">Zambia</option>
+                  <option value="Zimbabwe">Zimbabwe</option>
+                </select> {% if profile_form.errors.nationality %}
+                <div class="{{ error_classes }}">{{ profile_form.errors.nationality }}</div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="mt-4">
+              <label for="id_address" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+              <input type="text" name="address" id="id_address" value="{{ profile.address }}"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent" />
+              {% if profile_form.errors.address %}
+              <div class="{{ error_classes }}">{{ profile_form.errors.address }}</div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4"><i class="fas fa-code mr-2 text-gray-600"></i> Skills
+            </h2>
+            <div>
+              <label for="id_skills" class="block text-sm font-medium text-gray-700 mb-1">Your Skills
+                (comma-separated)</label>
+              {% include 'components/skills_input.html' with container_id='skills-container-1' input_id='skills-input-1' hidden_id='skills-hidden-1' dropdown_id='skills-dropdown-1' suggestions_id='skills-suggestions-1' name='skills' label='' placeholder='Type to search skills' value=profile.skills error=profile_form.errors.skills %}
+              <p class="mt-1 text-xs text-gray-500">Separate skills with commas</p>
+
+              {% if profile_form.errors.skills %}
+              <div class="{{ error_classes }}">{{ profile_form.errors.skills }}</div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4"><i class="fas fa-briefcase mr-2 text-gray-600"></i>
+              Experience</h2>
+            <div>
+              <label for="id_experience" class="block text-sm font-medium text-gray-700 mb-1">Work Experience</label>
+              <textarea name="experience" id="id_experience" rows="6"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                placeholder="Describe your work experience, roles, and responsibilities...">{{ profile.experience }}</textarea>
+              {% if profile_form.errors.experience %}
+              <div class="{{ error_classes }}">{{ profile_form.errors.experience }}</div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-sm p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4"><i
+                class="fas fa-graduation-cap mr-2 text-gray-600"></i>Education</h2>
+            <div>
+              <label for="id_education" class="block text-sm font-medium text-gray-700 mb-1">Educational
+                Background</label>
+              <textarea name="education" id="id_education" rows="6"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                placeholder="Describe your educational qualifications, degrees, and institutions...">{{ profile.education }}</textarea>
+              {% if profile_form.errors.education %}
+              <div class="{{ error_classes }}">{{ profile_form.errors.education }}</div>
+              {% endif %}
+            </div>
+          </div>
+          <div class="bg-white rounded-lg shadow-sm p-6" id="jobPreferences">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4">
+              <i class="fas fa-map-marker-alt mr-2 text-gray-600"></i>
+              Job Preferences
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label for="id_preferred_location" class="block text-sm font-medium text-gray-700 mb-1">Preferred
+                  Location</label>
+                <input type="text" name="preferred_location" id="id_preferred_location"
+                  value="{{ profile.preferred_location }}"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                  placeholder="e.g., Kathmandu, Remote" />
+                {% if profile_form.errors.prefered_location %}
+                <div class="{{ error_classes }}">{{ profile_form.errors.prefered_location }}</div>
+                {% endif %}
+              </div>
+              <div>
+                <label for="id_preferred_job_type" class="block text-sm font-medium text-gray-700 mb-1">Preferred Job
+                  Type</label>
+                <select name="preferred_job_type" id="id_preferred_job_type"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                  <option value="Remote">Remote</option>
+                  <option value="On-Site">On-Site</option>
+                  <option value="Hybrid">Hybrid</option>
+                  <option value="No Preferences">No Preferences</option>
+                </select>
+                {% if profile_form.errors.preferred_job_type %}
+                <div class="{{ error_classes }}">{{ profile_form.errors.preferred_job_type }}</div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-6 flex justify-end gap-3">
+        <a href="{% url 'profile' %}"
+          class="px-6 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">Cancel</a>
+        <button type="submit"
+          class="px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500">
+          <i class="fas fa-save mr-2"></i>
+          Save Changes
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.getElementById('id_profile_image').addEventListener('change', function (e) {
+    const file = e.target.files[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = function (e) {
+        document.getElementById('profilePreview').src = e.target.result
+      }
+      reader.readAsDataURL(file)
+    }
+  })
+</script>
+{% endwith %}
+{% endblock %}

@@ -25,7 +25,8 @@ from .views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', landingPage),
-    path('user/', include('users.urls') )
+    path('user/', include('users.urls') ),
+    path('dashboard/', dashboard )
 ]
 
 if settings.DEBUG:

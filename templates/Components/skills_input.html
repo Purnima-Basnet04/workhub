@@ -20,6 +20,15 @@
   const suggestionsBox = document.getElementById('{{ suggestions_id }}');
   const dropdownBtn = document.getElementById('{{ dropdown_id }}');
 
+if (skillsHidden.value) {
+  selectedSkills = skillsHidden.value
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  selectedSkills.forEach(skill => createChip(skill));
+}
+
   function updateHiddenInput() {
     skillsHidden.value = selectedSkills.join(',');
   }
@@ -100,4 +109,3 @@
   });
 })();
 </script>
-
