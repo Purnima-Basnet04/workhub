@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from skills.models import Skill
 
 
 class Profile(models.Model):
@@ -24,7 +25,7 @@ class Profile(models.Model):
     profile_image = models.ImageField( blank=True, null=True, upload_to=generateImagePath, default="users/default_user.png" )
     dob = models.DateField(blank=True, null=True)
     role = models.CharField(max_length=10, choices=RoleOptions, default=RoleOptions.JobSeeker)
-    skills = models.TextField(help_text="Comma separated skills")
+    skills = models.ManyToManyField(Skill, blank=True, related_name="profiles")
     experience = models.TextField(blank=True)
     education = models.TextField(blank=True)
     resume = models.FileField(upload_to="resumes/", blank=True, null=True)

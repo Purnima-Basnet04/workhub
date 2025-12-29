@@ -377,8 +377,7 @@
               {% endif %}
             </div>
           </div>
-          {% include 'components/skills_input.html' with container_id='skills-container-1' input_id='skills-input-1' hidden_id='skills-hidden-1' dropdown_id='skills-dropdown-1' suggestions_id='skills-suggestions-1' name='skills' label='Skills' placeholder='Type to search skills' value=request.POST.skills error=profile_form.errors.skills %}
-
+          {% include 'components/skills_input.html' with container_id='skills-container-1' input_id='skills-input-1' hidden_id='skills-hidden-1' dropdown_id='skills-dropdown-1' suggestions_id='skills-suggestions-1' name='skills' label='Skills' placeholder='Type to search skills' skills=skills %}
           <div class="w-full flex">
             <button type="submit" class="w-1/3 mx-auto bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors shadow-lg hover:shadow-xl">Sign Up</button>
           </div>

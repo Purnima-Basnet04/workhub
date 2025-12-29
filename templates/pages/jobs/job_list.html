@@ -1,0 +1,430 @@
+{% extends 'layouts/main.html' %}
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-4">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between mb-6 gap-4">
+      <div class="">
+        <h1 class="text-3xl font-bold text-gray-900">Browse Jobs</h1>
+        <p class="text-sm text-gray-600">
+          Job{{ jobs.count|pluralize }} : <span class="font-semibold">{{ jobs.count }}</span>
+        </p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="relative" id="filtersDropdown">
+          <button type="button" onclick="toggleFiltersDropdown()" 
+                  class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none">
+            <i class="fas fa-filter text-cyan-600"></i>
+            <span>Filters</span>
+            <span id="activeFiltersCount" class="text-xs text-gray-500"></span>
+            <i id="filterArrow" class="fas fa-chevron-down text-gray-400 transition-transform duration-300"></i>
+          </button>
+          <div id="filtersContent" class="absolute left-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 origin-top-left scale-95 opacity-0 -translate-y-3 transition-all duration-300 ease-out pointer-events-none z-10">
+            <form method="GET" class="p-6 space-y-1">
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">Filter Jobs</h3>
+              <div>
+                <label for="location" class="block text-sm font-medium text-gray-700 mb-1">Location</label>
+                <input type="text" name="location" id="location" value="{{ request.GET.location }}" 
+                       placeholder="City or remote" 
+                       class="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+              </div>
+              <div>
+                <label for="company" class="block text-sm font-medium text-gray-700 mb-1">Company</label>
+                <input type="text" name="company" id="company" value="{{ request.GET.company }}" 
+                       placeholder="Company name" 
+                       class="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+              </div>
+              <div>
+                <label for="employment_type" class="block text-sm font-medium text-gray-700 mb-1">Employment Type</label>
+                <select name="employment_type" id="employment_type" class="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                  <option value="">All Types</option>
+                  <option value="full_time" {% if request.GET.employment_type == 'full_time' %}selected{% endif %}>Full Time</option>
+                  <option value="part_time" {% if request.GET.employment_type == 'part_time' %}selected{% endif %}>Part Time</option>
+                  <option value="contract" {% if request.GET.employment_type == 'contract' %}selected{% endif %}>Contract</option>
+                  <option value="internship" {% if request.GET.employment_type == 'internship' %}selected{% endif %}>Internship</option>
+                </select>
+              </div>
+              <div>
+                <label for="work_mode" class="block text-sm font-medium text-gray-700 mb-1">Work Mode</label>
+                <select name="work_mode" id="work_mode" 
+                        class="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                  <option value="">All Modes</option>
+                  <option value="on_site" {% if request.GET.work_mode == 'on_site' %}selected{% endif %}>On-site</option>
+                  <option value="remote" {% if request.GET.work_mode == 'remote' %}selected{% endif %}>Remote</option>
+                  <option value="hybrid" {% if request.GET.work_mode == 'hybrid' %}selected{% endif %}>Hybrid</option>
+                </select>
+              </div>
+              <div>
+                <label for="min_experience" class="block text-sm font-medium text-gray-700 mb-1">Min Experience (Years)</label>
+                <input type="number" name="min_experience" id="min_experience" value="{{ request.GET.min_experience }}" 
+                       placeholder="0" min="0"
+                       class="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label for="min_salary" class="block text-sm font-medium text-gray-700 mb-1">Min Salary</label>
+                  <input type="number" name="min_salary" id="min_salary" value="{{ request.GET.min_salary }}" 
+                         placeholder="50000" min="0"
+                         class="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                </div>
+                <div>
+                  <label for="max_salary" class="block text-sm font-medium text-gray-700 mb-1">Max Salary</label>
+                  <input type="number" name="max_salary" id="max_salary" value="{{ request.GET.max_salary }}" 
+                         placeholder="100000" min="0"
+                         class="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                </div>
+              </div>
+
+              <input type="hidden" name="sort" value="{{ request.GET.sort }}">
+              <div class="flex items-center gap-2 pt-2 border-t">
+                <button type="submit" class="flex-1 px-4 py-1 bg-cyan-600 text-white rounded-md hover:bg-cyan-700 transition duration-300">
+                  <i class="fas fa-check mr-2"></i>Apply
+                </button>
+                <a href="{% url 'jobs' %}" class="px-4 py-1 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition duration-300">
+                  <i class="fas fa-redo"></i>
+                </a>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="relative" id="sortDropdown">
+          <button type="button" onclick="toggleSortDropdown()" class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none">
+            <i class="fas fa-sort text-cyan-600"></i>
+            <span>Sort</span>
+            <i id="sortArrow" class="fas fa-chevron-down text-gray-400 transition-transform duration-300"></i>
+          </button>
+          
+          <div id="sortContent" class="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 origin-top-left scale-95 opacity-0 -translate-y-3 transition-all duration-300 ease-out pointer-events-none z-10">
+            <div class="py-2">
+              <a href="?sort=newest{% if request.GET.location %}&location={{ request.GET.location }}{% endif %}{% if request.GET.employment_type %}&employment_type={{ request.GET.employment_type }}{% endif %}{% if request.GET.work_mode %}&work_mode={{ request.GET.work_mode }}{% endif %}{% if request.GET.min_experience %}&min_experience={{ request.GET.min_experience }}{% endif %}{% if request.GET.min_salary %}&min_salary={{ request.GET.min_salary }}{% endif %}{% if request.GET.max_salary %}&max_salary={{ request.GET.max_salary }}{% endif %}" 
+                 class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition duration-200 {% if request.GET.sort == 'newest' or not request.GET.sort %}bg-cyan-50 text-cyan-600 font-medium{% endif %}">
+                <i class="fas fa-clock mr-3 w-4"></i>
+                <span>Newest First</span>
+              </a>
+              <a href="?sort=oldest{% if request.GET.location %}&location={{ request.GET.location }}{% endif %}{% if request.GET.employment_type %}&employment_type={{ request.GET.employment_type }}{% endif %}{% if request.GET.work_mode %}&work_mode={{ request.GET.work_mode }}{% endif %}{% if request.GET.min_experience %}&min_experience={{ request.GET.min_experience }}{% endif %}{% if request.GET.min_salary %}&min_salary={{ request.GET.min_salary }}{% endif %}{% if request.GET.max_salary %}&max_salary={{ request.GET.max_salary }}{% endif %}" 
+                 class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition duration-200 {% if request.GET.sort == 'oldest' %}bg-cyan-50 text-cyan-600 font-medium{% endif %}">
+                <i class="fas fa-history mr-3 w-4"></i>
+                <span>Oldest First</span>
+              </a>
+              <a href="?sort=salary_high{% if request.GET.location %}&location={{ request.GET.location }}{% endif %}{% if request.GET.employment_type %}&employment_type={{ request.GET.employment_type }}{% endif %}{% if request.GET.work_mode %}&work_mode={{ request.GET.work_mode }}{% endif %}{% if request.GET.min_experience %}&min_experience={{ request.GET.min_experience }}{% endif %}{% if request.GET.min_salary %}&min_salary={{ request.GET.min_salary }}{% endif %}{% if request.GET.max_salary %}&max_salary={{ request.GET.max_salary }}{% endif %}" 
+                 class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition duration-200 {% if request.GET.sort == 'salary_high' %}bg-cyan-50 text-cyan-600 font-medium{% endif %}">
+                <i class="fas fa-arrow-up mr-3 w-4"></i>
+                <span>Salary: High to Low</span>
+              </a>
+              <a href="?sort=salary_low{% if request.GET.location %}&location={{ request.GET.location }}{% endif %}{% if request.GET.employment_type %}&employment_type={{ request.GET.employment_type }}{% endif %}{% if request.GET.work_mode %}&work_mode={{ request.GET.work_mode }}{% endif %}{% if request.GET.min_experience %}&min_experience={{ request.GET.min_experience }}{% endif %}{% if request.GET.min_salary %}&min_salary={{ request.GET.min_salary }}{% endif %}{% if request.GET.max_salary %}&max_salary={{ request.GET.max_salary }}{% endif %}" 
+                 class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition duration-200 {% if request.GET.sort == 'salary_low' %}bg-cyan-50 text-cyan-600 font-medium{% endif %}">
+                <i class="fas fa-arrow-down mr-3 w-4"></i>
+                <span>Salary: Low to High</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {% if user.profile.role == 'recruiter' and user.companies_created.exists %}
+          <a href="{% url 'job_create' %}" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-cyan-600 hover:bg-cyan-700 transition duration-300">
+            <i class="fas fa-plus mr-2"></i>
+            Post a Job
+          </a>
+        {% endif %}
+      </div>
+    </div>
+    {% if jobs %}
+    <div class="space-y-4">
+      {% for job in jobs %}
+      <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
+        <div class="p-6">
+          <div class="flex items-start justify-between">
+            <div class="flex-1">
+              <div class="flex items-start gap-4">
+                <a href="?company={{ job.company.public_url }}{% if request.GET.location %}&location={{ request.GET.location }}{% endif %}{% if request.GET.employment_type %}&employment_type={{ request.GET.employment_type }}{% endif %}{% if request.GET.work_mode %}&work_mode={{ request.GET.work_mode }}{% endif %}{% if request.GET.min_experience %}&min_experience={{ request.GET.min_experience }}{% endif %}{% if request.GET.min_salary %}&min_salary={{ request.GET.min_salary }}{% endif %}{% if request.GET.max_salary %}&max_salary={{ request.GET.max_salary }}{% endif %}"
+                  class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-gray-50 to-gray-300 rounded-lg flex items-center justify-center text-white font-bold text-xl">
+                  <img src="{{ job.company.logo.url }}" alt="{{ job.company.name }}" class="w-12 h-12 object-contain rounded-full">
+                </a>
+                <div class="flex-1">
+                  <div class="flex items-start justify-between">
+                    <div>
+                      <h3 class="text-xl font-semibold text-gray-900 hover:text-cyan-600 transition duration-300">
+                        <a href="{% url 'job_detail' job.id %}">{{ job.title }}</a>
+                      </h3>
+                      <p class="text-gray-600 mt-1">{{ job.company.name }}</p>
+                    </div>
+                    {% if user.profile.role == 'recruiter' and job.recruiter == user %}
+                    <div class="flex items-center gap-2">
+                      <a href="{% url 'job_update' job.id %}" class="px-3 py-1 text-sm text-cyan-600 hover:text-cyan-700 border border-cyan-600 rounded-md hover:bg-cyan-50 transition duration-300">
+                        <i class="fas fa-edit mr-1"></i>Edit
+                      </a>
+                      <button type="button" onclick="openDeleteModal({{ job.id }})"
+                              class="px-3 py-1 text-sm text-red-600 hover:text-red-700 border border-red-600 rounded-md hover:bg-red-50 transition duration-300">
+                        <i class="fas fa-trash mr-1"></i>Delete
+                      </button>
+                      <!-- Hidden form for actual deletion -->
+                      <form id="deleteForm-{{ job.id }}" method="POST" action="{% url 'job_delete' job.id %}" class="hidden">
+                        {% csrf_token %}
+                      </form>
+                      <div id="deleteModal-{{ job.id }}" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4">
+                        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 transform transition-all">
+                          <div class="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
+                            <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                          </div>
+                          <h3 class="text-lg font-semibold text-gray-900 text-center mb-2">
+                            Delete Job Posting
+                          </h3>
+                          <p class="text-sm text-gray-600 text-center mb-6">
+                            Are you sure you want to delete "{{ job.title }}"? This action cannot be undone and all associated applications will be permanently removed.
+                          </p>
+                          <div class="flex gap-3">
+                            <button type="button" onclick="closeDeleteModal({{ job.id }})"  class="bg-cyan-500 flex-1 px-4 py-2 text-sm font-medium text-white rounded-md hover:bg-cyan-600 transition duration-300">
+                              Cancel
+                            </button>
+                            <button type="button" onclick="document.getElementById('deleteForm-{{ job.id }}').submit()"
+                                    class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition duration-300">
+                              Delete Job
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    <script>
+                      function openDeleteModal(jobId) {
+                        document.getElementById('deleteModal-' + jobId).classList.remove('hidden');
+                        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+                      }
+                      function closeDeleteModal(jobId) {
+                        document.getElementById('deleteModal-' + jobId).classList.add('hidden');
+                        document.body.style.overflow = 'auto'; // Re-enable scrolling
+                      }
+                      document.addEventListener('keydown', function(event) {
+                        if (event.key === 'Escape') {
+                          const modals = document.querySelectorAll('[id^="deleteModal-"]');
+                          modals.forEach(modal => {
+                            if (!modal.classList.contains('hidden')) {
+                              modal.classList.add('hidden');
+                              document.body.style.overflow = 'auto';
+                            }
+                          });
+                        }
+                      });
+                      document.addEventListener('click', function(event) {
+                      const modals = document.querySelectorAll('[id^="deleteModal-"]');
+                      modals.forEach(modal => {
+                        if (event.target === modal) {
+                          modal.classList.add('hidden');
+                          document.body.style.overflow = 'auto';
+                        }
+                      });
+                    });
+                    </script>
+                    </div>
+                    {% endif %}
+                  </div>
+                  <div class="flex flex-wrap items-center gap-4 mt-3 text-sm text-gray-600">
+                    <span class="flex items-center">
+                      <i class="fas fa-map-marker-alt mr-1 text-cyan-600"></i>
+                      {{ job.location }}
+                    </span>
+                    <span class="flex items-center">
+                      <i class="fas fa-briefcase mr-1 text-cyan-600"></i>
+                      {{ job.get_employment_type_display }}
+                    </span>
+                    <span class="flex items-center">
+                      <i class="fas fa-laptop-house mr-1 text-cyan-600"></i>
+                      {{ job.get_work_mode_display }}
+                    </span>
+                    <span class="flex items-center">
+                      <i class="fas fa-clock mr-1 text-cyan-600"></i>
+                      {{ job.min_experience }} year{{ job.min_experience|pluralize }} exp
+                    </span>
+                    {% if job.salary_min and job.salary_max %}
+                    <span class="flex items-center font-semibold text-green-600">
+                      <i class="fas fa-dollar-sign mr-1"></i>
+                      ${{ job.salary_min|floatformat:0 }} - ${{ job.salary_max|floatformat:0 }}
+                    </span>
+                    {% endif %}
+                  </div>
+                  {% if job.skills.all %}
+                  <div class="flex flex-wrap gap-2 mt-3">
+                    {% for skill in job.skills.all|slice:":5" %}
+                    <span class="px-3 py-1 bg-cyan-50 text-cyan-700 text-xs font-medium rounded-full border border-cyan-200">
+                      {{ skill.name }}
+                    </span>
+                    {% endfor %}
+                    {% if job.skills.count > 5 %}
+                    <span class="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
+                      +{{ job.skills.count|add:"-5" }} more
+                    </span>
+                    {% endif %}
+                  </div>
+                  {% endif %}
+                  <p class="mt-3 text-sm text-gray-600 line-clamp-2">
+                    {{ job.description|truncatewords:30 }}
+                  </p>
+                  <div class="flex items-center justify-between mt-4">
+                    <div class="flex items-center gap-4 text-xs text-gray-500">
+                      <span>
+                        <i class="fas fa-users mr-1"></i>
+                        {{ job.vacancies }} position{{ job.vacancies|pluralize }}
+                      </span>
+                      <span>
+                        <i class="fas fa-calendar mr-1"></i>
+                        Posted {{ job.created_at|timesince }} ago
+                      </span>
+                    </div>
+                    <a href="{% url 'job_detail' job.id %}" class="inline-flex items-center px-4 py-2 bg-cyan-600 text-white text-sm font-medium rounded-md hover:bg-cyan-700 transition duration-300">
+                      View Details
+                      <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% if is_paginated %}
+    <div class="mt-8 flex items-center justify-center">
+      <nav class="flex items-center gap-2">
+        {% if page_obj.has_previous %}
+        <a href="?page=1" class="px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">
+          <i class="fas fa-angle-double-left"></i>
+        </a>
+        <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">
+          <i class="fas fa-angle-left"></i>
+        </a>
+        {% endif %}
+        <span class="px-4 py-2 text-sm text-gray-700">
+          Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">
+          <i class="fas fa-angle-right"></i>
+        </a>
+        <a href="?page={{ page_obj.paginator.num_pages }}" class="px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">
+          <i class="fas fa-angle-double-right"></i>
+        </a>
+        {% endif %}
+      </nav>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="bg-white rounded-lg shadow-sm p-12 text-center">
+      <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <i class="fas fa-briefcase text-4xl text-gray-400"></i>
+      </div>
+      <h3 class="text-xl font-semibold text-gray-900 mb-2">No Jobs Found</h3>
+      <p class="text-gray-600 mb-6">Try adjusting your filters or check back later for new opportunities.</p>
+      <a href="{% url 'jobs' %}" class="inline-flex items-center px-6 py-3 bg-cyan-600 text-white rounded-md hover:bg-cyan-700 transition duration-300">
+        <i class="fas fa-redo mr-2"></i>
+        Clear Filters
+      </a>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<style>
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+</style>
+<script>
+function toggleFiltersDropdown() {
+  const dropdown = document.getElementById('filtersContent');
+  const arrow = document.getElementById('filterArrow');
+  const isOpen = dropdown.classList.contains('scale-100');
+  const sortDropdown = document.getElementById('sortContent');
+  const sortArrow = document.getElementById('sortArrow');
+  sortDropdown.classList.remove('scale-100', 'opacity-100', 'translate-y-0', 'pointer-events-auto');
+  sortDropdown.classList.add('scale-95', 'opacity-0', '-translate-y-3', 'pointer-events-none');
+  sortArrow.classList.remove('rotate-180');
+  if (isOpen) {
+    dropdown.classList.remove('scale-100', 'opacity-100', 'translate-y-0', 'pointer-events-auto');
+    dropdown.classList.add('scale-95', 'opacity-0', '-translate-y-3', 'pointer-events-none');
+    arrow.classList.remove('rotate-180');
+  } else {
+    dropdown.classList.remove('scale-95', 'opacity-0', '-translate-y-3', 'pointer-events-none');
+    dropdown.classList.add('scale-100', 'opacity-100', 'translate-y-0', 'pointer-events-auto');
+    arrow.classList.add('rotate-180');
+  }
+}
+
+function toggleSortDropdown() {
+  const dropdown = document.getElementById('sortContent');
+  const arrow = document.getElementById('sortArrow');
+  const isOpen = dropdown.classList.contains('scale-100');
+  const filtersDropdown = document.getElementById('filtersContent');
+  const filtersArrow = document.getElementById('filterArrow');
+  filtersDropdown.classList.remove('scale-100', 'opacity-100', 'translate-y-0', 'pointer-events-auto');
+  filtersDropdown.classList.add('scale-95', 'opacity-0', '-translate-y-3', 'pointer-events-none');
+  filtersArrow.classList.remove('rotate-180');
+  if (isOpen) {
+    dropdown.classList.remove('scale-100', 'opacity-100', 'translate-y-0', 'pointer-events-auto');
+    dropdown.classList.add('scale-95', 'opacity-0', '-translate-y-3', 'pointer-events-none');
+    arrow.classList.remove('rotate-180');
+  } else {
+    dropdown.classList.remove('scale-95', 'opacity-0', '-translate-y-3', 'pointer-events-none');
+    dropdown.classList.add('scale-100', 'opacity-100', 'translate-y-0', 'pointer-events-auto');
+    arrow.classList.add('rotate-180');
+  }
+}
+document.addEventListener('click', function(event) {
+  const filtersWrapper = document.getElementById('filtersDropdown');
+  const filtersDropdown = document.getElementById('filtersContent');
+  const filtersArrow = document.getElementById('filterArrow');
+  const sortWrapper = document.getElementById('sortDropdown');
+  const sortDropdown = document.getElementById('sortContent');
+  const sortArrow = document.getElementById('sortArrow');
+  
+  if (filtersWrapper && !filtersWrapper.contains(event.target)) {
+    filtersDropdown.classList.remove('scale-100', 'opacity-100', 'translate-y-0', 'pointer-events-auto');
+    filtersDropdown.classList.add('scale-95', 'opacity-0', '-translate-y-3', 'pointer-events-none');
+    filtersArrow.classList.remove('rotate-180');
+  }
+  
+  if (sortWrapper && !sortWrapper.contains(event.target)) {
+    sortDropdown.classList.remove('scale-100', 'opacity-100', 'translate-y-0', 'pointer-events-auto');
+    sortDropdown.classList.add('scale-95', 'opacity-0', '-translate-y-3', 'pointer-events-none');
+    sortArrow.classList.remove('rotate-180');
+  }
+});
+
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') {
+    const filtersDropdown = document.getElementById('filtersContent');
+    const filtersArrow = document.getElementById('filterArrow');
+    const sortDropdown = document.getElementById('sortContent');
+    const sortArrow = document.getElementById('sortArrow');
+    
+    filtersDropdown.classList.remove('scale-100', 'opacity-100', 'translate-y-0', 'pointer-events-auto');
+    filtersDropdown.classList.add('scale-95', 'opacity-0', '-translate-y-3', 'pointer-events-none');
+    filtersArrow.classList.remove('rotate-180');
+    
+    sortDropdown.classList.remove('scale-100', 'opacity-100', 'translate-y-0', 'pointer-events-auto');
+    sortDropdown.classList.add('scale-95', 'opacity-0', '-translate-y-3', 'pointer-events-none');
+    sortArrow.classList.remove('rotate-180');
+  }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const filterParams = ['location', 'employment_type', 'work_mode', 'min_experience', 'min_salary', 'max_salary'];
+  let activeCount = 0;
+  
+  filterParams.forEach(param => {
+    if (urlParams.get(param)) {
+      activeCount++;
+    }
+  });
+  
+  if (activeCount > 0) {
+    document.getElementById('activeFiltersCount').textContent = `(${activeCount})`;
+  }
+});
+</script>
+{% endblock %}

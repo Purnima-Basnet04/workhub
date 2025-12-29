@@ -21,93 +21,13 @@
       <div id="messages" class="fixed shadow-sm top-20 right-2 z-50 space-y-3 max-w-md w-full translate-x-full opacity-0 transition-all duration-500 ease-out">
         {% for message in messages %}
           <div class="{% if message.tags == 'success' %}
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
               bg-white border-l-4 border-green-500
-
-
-
-
-
-
-
-
-
-
             {% elif message.tags == 'error' %}
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
               bg-white border-l-4 border-red-500
-
-
-
-
-
-
-
-
-
-
             {% elif message.tags == 'warning' %}
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
               bg-white border-l-4 border-yellow-500
-
-
-
-
-
-
-
-
-
-
             {% else %}
-              
-              
-              
-              
-              
-              
-              
-              
-              
-              
               bg-white border-l-4 border-blue-500
-
-
-
-
-
-
-
-
-
-
             {% endif %} rounded-lg shadow-xl p-4 flex items-start gap-3">
             <div class="flex-shrink-0">
               {% if message.tags == 'success' %}
@@ -144,13 +64,20 @@
     {% endif %}
     <nav class="fixed w-full z-50 bg-white shadow-md border-b-[6px] border-cyan-700 rounded-lg">
       <div class="mx-auto px-4 sm:px-6 lg:px-8 ml-[5%] mr-[5%]">
-        <div class="flex justify-between items-center h-16">
+        <div class="grid grid-cols-4 items-center h-16">
           <a href="/" class="flex items-center gap-2">
             <img class="h-10 w-10" src="/media/system_image/logo1.png" alt="Logo" />
             <h1 class="hidden md:block text-2xl font-bold text-cyan-600">WorkHub</h1>
           </a>
           {% if request.user.is_authenticated %}
-            <div class="hidden md:flex items-center space-x-8">
+            <div class="col-span-2 relative">
+              <form method="GET" action="/jobs" class="flex items-center">
+                <input type="text" name="search" placeholder="Search jobs..." value="{{ request.GET.search }}" class="w-[100%] pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-sm" />
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 bg-cyan-600 text-white text-xs rounded-md hover:bg-cyan-700 transition duration-300">Go</button>
+              </form>
+            </div>
+            <div class="hidden md:flex items-center space-x-8 ms-auto">
               <a href="/dashboard" class="mt-auto flex flex-col space-y-2 items-center text-gray-700 hover:text-cyan-600 transition duration-300">
                 <i class="fa fa-xl fa-home"></i>
                 <span class="">Home</span>
@@ -159,7 +86,30 @@
                 <i class="fa-solid fa-xl fa-briefcase"></i>
                 <span class="">Jobs</span>
               </a>
-              <a href="/user/profile" class=""><img src="{{ request.user.profile.profile_image.url }}" alt="{{ user.username }}" class="w-12 h-12 rounded-full bg-gray-100 border-2 border-white shadow-lg object-cover hover:border-cyan-600 hover:scale-[1.05] transition duration-300" /></a>
+              <div class="relative" id="profileDropdown">
+                <button type="button" onclick="toggleDropdown()" class="flex items-center gap-2 focus:outline-none">
+                  <img src="{{ request.user.profile.profile_image.url }}" alt="{{ user.username }}" class="w-12 h-12 rounded-full bg-gray-100 border-2 border-white shadow-lg object-cover hover:border-cyan-600 hover:scale-[1.05] transition duration-300 cursor-pointer" />
+                  <i id="dropdownArrow" class="fas fa-chevron-down text-gray-600 text-sm transition-transform duration-300"></i>
+                </button>
+                <div id="dropdownMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-2 opacity-0 scale-95 transition-all duration-200 origin-top-right">
+                  <div class="px-4 py-3 border-b border-gray-200">
+                    <p class="text-sm font-semibold text-gray-900">{{ request.user.get_full_name|default:request.user.username }}</p>
+                    <p class="text-xs text-gray-500 truncate">{{ request.user.email }}</p>
+                  </div>
+                  <a href="/user/profile" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition duration-200">
+                    <i class="fas fa-user mr-3 w-4"></i>
+                    <span>Profile</span>
+                  </a>
+                  <a href="/company/pages" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition duration-200">
+                    <i class="fa-solid fa-briefcase mr-3 w-4"></i>
+                    <span>Company Page</span>
+                  </a>
+                  <a href="/user/logout" class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition duration-200">
+                    <i class="fas fa-sign-out-alt mr-3 w-4"></i>
+                    <span>Logout</span>
+                  </a>
+                </div>
+              </div>
             </div>
           {% else %}
             <div class="hidden md:flex items-center space-x-4">
@@ -222,5 +172,66 @@
         <p>&copy; 2025 WorkHub. All rights reserved. Powered by AI.</p>
       </div>
     </footer>
+
+    <script>
+      // Dropdown toggle function
+      function toggleDropdown() {
+        const dropdown = document.getElementById('dropdownMenu')
+        const arrow = document.getElementById('dropdownArrow')
+      
+        if (dropdown.classList.contains('hidden')) {
+          // Show dropdown with animation
+          dropdown.classList.remove('hidden')
+          setTimeout(() => {
+            dropdown.classList.remove('opacity-0', 'scale-95')
+            dropdown.classList.add('opacity-100', 'scale-100')
+          }, 10)
+          arrow.classList.add('rotate-180')
+        } else {
+          // Hide dropdown with animation
+          dropdown.classList.remove('opacity-100', 'scale-100')
+          dropdown.classList.add('opacity-0', 'scale-95')
+          setTimeout(() => {
+            dropdown.classList.add('hidden')
+          }, 200)
+          arrow.classList.remove('rotate-180')
+        }
+      }
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function (event) {
+        const dropdownContainer = document.getElementById('profileDropdown')
+        const dropdownMenu = document.getElementById('dropdownMenu')
+        const arrow = document.getElementById('dropdownArrow')
+      
+        if (dropdownContainer && !dropdownContainer.contains(event.target)) {
+          if (!dropdownMenu.classList.contains('hidden')) {
+            dropdownMenu.classList.remove('opacity-100', 'scale-100')
+            dropdownMenu.classList.add('opacity-0', 'scale-95')
+            setTimeout(() => {
+              dropdownMenu.classList.add('hidden')
+            }, 200)
+            arrow.classList.remove('rotate-180')
+          }
+        }
+      })
+      
+      // Close dropdown when pressing Escape key
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+          const dropdownMenu = document.getElementById('dropdownMenu')
+          const arrow = document.getElementById('dropdownArrow')
+      
+          if (!dropdownMenu.classList.contains('hidden')) {
+            dropdownMenu.classList.remove('opacity-100', 'scale-100')
+            dropdownMenu.classList.add('opacity-0', 'scale-95')
+            setTimeout(() => {
+              dropdownMenu.classList.add('hidden')
+            }, 200)
+            arrow.classList.remove('rotate-180')
+          }
+        }
+      })
+    </script>
   </body>
 </html>

@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import *
+from .models import Profile
 from django.core.files.uploadedfile import UploadedFile
 
 class UserRegistrationForm(UserCreationForm):
@@ -16,7 +16,7 @@ class UserRegistrationForm(UserCreationForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ("address", "phone", "nationality", "gender", "profile_image", "dob", "role", "skills", "experience", "education", "resume", "preferred_location", "preferred_job_type")
+        fields = ("address", "phone", "nationality", "gender", "profile_image", "dob", "role", "experience", "education", "resume", "preferred_location", "preferred_job_type")
 
     def clean_phone(self):
         phone = self.cleaned_data.get("phone")

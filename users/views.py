@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
+from skills.models import Skill
 
 def register(request):
     if request.user.is_authenticated:
@@ -13,21 +14,23 @@ def register(request):
     if request.method == "POST":
         user_form = UserRegistrationForm(request.POST)
         profile_form = ProfileForm(request.POST, request.FILES)
+        skills_ids = request.POST.get("skills", "")
+        skills_ids = [int(i) for i in skills_ids.split(",") if i.isdigit()]
         if user_form.is_valid() and profile_form.is_valid():
             user = user_form.save()
-            profile = user.profile
-            for field in profile_form.cleaned_data:
-                setattr(profile, field, profile_form.cleaned_data[field])
+            profile = profile_form.save(commit=False)
+            profile.user = user
             profile.save()
+            if skills_ids:
+                profile.skills.set(Skill.objects.filter(id__in=skills_ids))
             messages.success(request, "Registration successful")
             return redirect("/user/login")
-        else:
-            print(user_form.errors)
-            print(profile_form.errors)
     else:
         user_form = UserRegistrationForm()
         profile_form = ProfileForm()
-    return render(request, "pages/users/register.html", {"user_form": user_form, "profile_form": profile_form, })
+    skills = Skill.objects.filter(is_active=True).values("id", "name")
+    return render(request, "pages/users/register.html", {"user_form": user_form, "profile_form": profile_form, "skills": list(skills)})
+
 
 
 def login_user(request):
@@ -67,15 +70,23 @@ def profile_update(request):
     if request.method == "POST":
         user_form = UserUpdateForm(request.POST, instance=user)
         profile_form = ProfileForm(request.POST, request.FILES, instance=profile)
+        skills_str = request.POST.get("skills", "")
+        skill_ids = [int(x) for x in skills_str.split(",") if x.isdigit()]
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
-            profile_form.save()
+            profile = profile_form.save(commit=False)
+            profile.user = user
+            profile.save()
+            profile.skills.set(Skill.objects.filter(id__in=skill_ids))
             messages.success(request, "Profile updated successfully.")
             return redirect("profile")
     else:
         user_form = UserUpdateForm(instance=user)
         profile_form = ProfileForm(instance=profile)
-    return render(request, "pages/users/profile_update.html", {"profile": profile, "user": user, "user_form": user_form, "profile_form": profile_form})
+    skills = Skill.objects.filter(is_active=True).values("id", "name")
+    skills_ids_str = ','.join(str(s.id) for s in profile.skills.all())
+    skills = Skill.objects.filter(is_active=True).values("id", "name")
+    return render(request, "pages/users/profile_update.html", {"user_form": user_form, "profile_form": profile_form, "profile": profile, "skills_ids_str":skills_ids_str, "skills": list(skills)})
 
 def logoutUser(request):
     logout(request)

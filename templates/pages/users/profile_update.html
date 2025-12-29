@@ -417,9 +417,8 @@
             <div>
               <label for="id_skills" class="block text-sm font-medium text-gray-700 mb-1">Your Skills
                 (comma-separated)</label>
-              {% include 'components/skills_input.html' with container_id='skills-container-1' input_id='skills-input-1' hidden_id='skills-hidden-1' dropdown_id='skills-dropdown-1' suggestions_id='skills-suggestions-1' name='skills' label='' placeholder='Type to search skills' value=profile.skills error=profile_form.errors.skills %}
+              {% include 'components/skills_input.html' with container_id='skills-container-1' input_id='skills-input-1' hidden_id='skills-hidden-1' dropdown_id='skills-dropdown-1' suggestions_id='skills-suggestions-1' name='skills' label='' placeholder='Type to search skills'  skills=skills  value=skills_ids_str  %}
               <p class="mt-1 text-xs text-gray-500">Separate skills with commas</p>
-
               {% if profile_form.errors.skills %}
               <div class="{{ error_classes }}">{{ profile_form.errors.skills }}</div>
               {% endif %}
