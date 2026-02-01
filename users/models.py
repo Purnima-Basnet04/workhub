@@ -18,6 +18,8 @@ class Profile(models.Model):
         Others = "Others", "Others"
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    position = models.CharField(max_length=100, blank=True)
+    summary = models.TextField(blank=True)
     address = models.CharField(max_length=50)
     phone = models.CharField( max_length=10)
     nationality = models.CharField( max_length=15, default="Nepal")
@@ -26,12 +28,61 @@ class Profile(models.Model):
     dob = models.DateField(blank=True, null=True)
     role = models.CharField(max_length=10, choices=RoleOptions, default=RoleOptions.JobSeeker)
     skills = models.ManyToManyField(Skill, blank=True, related_name="profiles")
-    experience = models.TextField(blank=True)
-    education = models.TextField(blank=True)
-    resume = models.FileField(upload_to="resumes/", blank=True, null=True)
     preferred_location = models.CharField(max_length=100, blank=True)
     preferred_job_type = models.CharField(max_length=50, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.user.username}"
+
+class Experience(models.Model):
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="experiences")
+    job_title = models.CharField(max_length=100)
+    company_name = models.CharField(max_length=100)
+    start_date = models.DateField()
+    end_date = models.DateField(blank=True, null=True)
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.job_title} at {self.company_name}"
+
+class Education(models.Model):
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="educations")
+    institution_name = models.CharField(max_length=100)
+    degree = models.CharField(max_length=100)
+    field_of_study = models.CharField(max_length=100, blank=True)
+    start_date = models.DateField()
+    end_date = models.DateField(blank=True, null=True)
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.degree} in {self.field_of_study} from {self.institution_name}"
+    
+class Certification(models.Model):
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="certifications")
+    name = models.CharField(max_length=100)
+    issuing_organization = models.CharField(max_length=100)
+    issue_date = models.DateField()
+    expiration_date = models.DateField(blank=True, null=True)
+    credential_id = models.CharField(max_length=100, blank=True)
+    credential_url = models.URLField(blank=True)
+
+    def __str__(self):
+        return f"{self.name} from {self.issuing_organization}"
+    
+class SocialLink(models.Model):
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="social_links")
+    platform = models.CharField(max_length=50)
+    url = models.URLField()
+
+    def __str__(self):
+        return f"{self.platform} link for {self.profile.user.username}"
+
+class Project(models.Model):
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="projects")
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    project_url = models.URLField(blank=True)
+
+    def __str__(self):
+        return f"{self.title} project for {self.profile.user.username}"

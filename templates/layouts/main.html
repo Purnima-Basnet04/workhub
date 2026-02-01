@@ -14,6 +14,29 @@
       * {
         margin: 0;
       }
+      @media print {
+        @page {
+          size: A4;
+          margin: 10mm;  
+        }
+        body {
+          background: white !important;
+        }
+        .no-print {
+          display: none !important;
+        }
+        .cv-card {
+          box-shadow: none !important;
+          border-radius: 0 !important;
+          padding: 0 !important;
+                      margin: 0 !important;
+            padding-top: 0 !important;
+        }
+        .avoid-break {
+          page-break-inside: avoid;
+          break-inside: avoid;
+        }
+      }
     </style>
   </head>
   <body class="bg-gray-50">
@@ -62,14 +85,13 @@
         })
       </script>
     {% endif %}
-    <nav class="fixed w-full z-50 bg-white shadow-md border-b-[6px] border-cyan-700 rounded-lg">
+    <nav class="fixed w-full z-50 bg-white shadow-md border-b-[6px] border-cyan-700 rounded-lg no-print">
       <div class="mx-auto px-4 sm:px-6 lg:px-8 ml-[5%] mr-[5%]">
-        <div class="grid grid-cols-4 items-center h-16">
+        <div class="grid grid-cols-4 space-x-4 items-center h-16">
           <a href="/" class="flex items-center gap-2">
             <img class="h-10 w-10" src="/media/system_image/logo1.png" alt="Logo" />
             <h1 class="hidden md:block text-2xl font-bold text-cyan-600">WorkHub</h1>
           </a>
-          {% if request.user.is_authenticated %}
             <div class="col-span-2 relative">
               <form method="GET" action="/jobs" class="flex items-center">
                 <input type="text" name="search" placeholder="Search jobs..." value="{{ request.GET.search }}" class="w-[100%] pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-sm" />
@@ -77,6 +99,7 @@
                 <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 bg-cyan-600 text-white text-xs rounded-md hover:bg-cyan-700 transition duration-300">Go</button>
               </form>
             </div>
+          {% if request.user.is_authenticated %}
             <div class="hidden md:flex items-center space-x-8 ms-auto">
               <a href="/dashboard" class="mt-auto flex flex-col space-y-2 items-center text-gray-700 hover:text-cyan-600 transition duration-300">
                 <i class="fa fa-xl fa-home"></i>
@@ -104,6 +127,10 @@
                     <i class="fa-solid fa-briefcase mr-3 w-4"></i>
                     <span>Company Page</span>
                   </a>
+                  <a href="/applications" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-600 transition duration-200">
+                    <i class="fa-solid fa-briefcase mr-3 w-4"></i>
+                    <span>Applied Jobs</span>
+                  </a>
                   <a href="/user/logout" class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition duration-200">
                     <i class="fas fa-sign-out-alt mr-3 w-4"></i>
                     <span>Logout</span>
@@ -125,7 +152,7 @@
 
       {% endblock %}
     </div>
-    <footer class="bg-cyan-600 text-white py-6">
+    <footer class="bg-cyan-600 text-white py-6 no-print">
       <div class="shadow-lg pb-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="mx-auto">
@@ -174,13 +201,11 @@
     </footer>
 
     <script>
-      // Dropdown toggle function
       function toggleDropdown() {
         const dropdown = document.getElementById('dropdownMenu')
         const arrow = document.getElementById('dropdownArrow')
       
         if (dropdown.classList.contains('hidden')) {
-          // Show dropdown with animation
           dropdown.classList.remove('hidden')
           setTimeout(() => {
             dropdown.classList.remove('opacity-0', 'scale-95')
@@ -188,7 +213,6 @@
           }, 10)
           arrow.classList.add('rotate-180')
         } else {
-          // Hide dropdown with animation
           dropdown.classList.remove('opacity-100', 'scale-100')
           dropdown.classList.add('opacity-0', 'scale-95')
           setTimeout(() => {
@@ -197,8 +221,6 @@
           arrow.classList.remove('rotate-180')
         }
       }
-      
-      // Close dropdown when clicking outside
       document.addEventListener('click', function (event) {
         const dropdownContainer = document.getElementById('profileDropdown')
         const dropdownMenu = document.getElementById('dropdownMenu')
@@ -216,7 +238,6 @@
         }
       })
       
-      // Close dropdown when pressing Escape key
       document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape') {
           const dropdownMenu = document.getElementById('dropdownMenu')
