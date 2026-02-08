@@ -1,5 +1,6 @@
 {% extends 'layouts/main.html' %}
 {% block content %}
+{% include 'components/delete_dialog.html' %}
   <div class="min-h-screen bg-gray-50 py-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
@@ -98,6 +99,16 @@
                   {% endif %}
                 </p>
               </div>
+              <div>
+                <p class="text-sm text-gray-500">Preferred Work Mode</p>
+                <p class="text-sm font-medium text-gray-900">
+                  {% if profile.preferred_work_mode %}
+                    {{ profile.preferred_work_mode }}
+                  {% else %}
+                    <span class="text-gray-400 italic">Not added</span>
+                  {% endif %}
+                </p>
+              </div>
             </div>
           </div>
           <div class="bg-white rounded-lg shadow-sm px-6 py-3">
@@ -120,7 +131,7 @@
           </div>
         </div>
 
-        <div class="lg:col-span-2 space-y-2 lg:max-h-[105vh] lg:overflow-y-auto">
+        <div class="lg:col-span-2 space-y-2 lg:max-h-[117vh] lg:overflow-y-auto scroll">
           <div class="bg-white rounded-lg shadow-sm px-6 py-3">
             <div class="flex items-center justify-between mb-2">
               <h2 class="text-lg font-semibold text-gray-900 flex items-center"><i class="fa fa-list-alt mr-2 text-gray-600"></i>Professional Summary</h2>
@@ -212,7 +223,10 @@
                   <div class="border-l-2 border-cyan-500 pl-4 pr-6">
                     <div class="flex items-center gap-6">
                       <h3 class="text-sm font-semibold text-gray-900">{{ exp.job_title }}</h3>
-                      <a href="/user/experience/{{ exp.id }}/edit" class="text-gray-400 hover:text-cyan-600 transition" title="Edit experience"><i class="fas fa-pen text-xs"></i></a>
+                      <div class="flex gap-4">
+                        <a href="/user/experience/{{ exp.id }}/edit" class="text-gray-400 hover:text-cyan-600 transition" title="Edit experience"><i class="fas fa-pen text-xs"></i></a>
+                        <button onclick="openDeleteDialog('Delete Experience', '{{ exp.job_title }}', '/user/experience/{{ exp.id }}/delete/')" class="text-gray-400 hover:text-red-600" title="Delete experience"><i class="fas fa-trash text-xs"></i></button>
+                      </div>
                     </div>
                     <p class="text-sm text-gray-600">{{ exp.company_name }}</p>
                     <p class="text-xs text-gray-500">{{ exp.start_date }} – {{ exp.end_date|default:'Present' }}</p>
@@ -242,7 +256,10 @@
                   <div class="border-l-2 border-cyan-500 pl-4 pr-6">
                     <div class="flex items-center gap-4">
                       <h3 class="text-sm font-semibold text-gray-900">{{ edu.degree }} – {{ edu.field_of_study }}</h3>
-                      <a href="/user/education/{{ edu.id }}/edit" class="text-gray-400 hover:text-cyan-600"><i class="fas fa-pen text-xs"></i></a>
+                      <div class="flex gap-4">
+                        <a href="/user/education/{{ edu.id }}/edit" class="text-gray-400 hover:text-cyan-600"><i class="fas fa-pen text-xs"></i></a>
+                        <button onclick="openDeleteDialog('Delete Education', '{{ edu.degree }} – {{ edu.field_of_study }}', '/user/education/{{ edu.id }}/delete/')" class="text-gray-400 hover:text-red-600" title="Delete education"><i class="fas fa-trash text-xs"></i></button>
+                      </div>
                     </div>
                     <p class="text-sm text-gray-600">{{ edu.institution_name }}</p>
                     <p class="text-xs text-gray-500">{{ edu.start_date }} – {{ edu.end_date|default:'Present' }}</p>
@@ -272,7 +289,10 @@
                   <div class="border-l-2 border-cyan-500 pl-4 pr-6">
                     <div class="flex items-center gap-4">
                       <h3 class="text-sm font-semibold text-gray-900">{{ cert.name }}</h3>
-                      <a href="/user/certification/{{ cert.id }}/edit" class="text-gray-400 hover:text-cyan-600"><i class="fas fa-pen text-xs"></i></a>
+                      <div class="flex gap-4">
+                        <a href="/user/certification/{{ cert.id }}/edit" class="text-gray-400 hover:text-cyan-600"><i class="fas fa-pen text-xs"></i></a>
+                        <button onclick="openDeleteDialog('Delete Certification', '{{ cert.name }}', '/user/certification/{{ cert.id }}/delete/')" class="text-gray-400 hover:text-red-600" title="Delete certification"><i class="fas fa-trash text-xs"></i></button>
+                      </div>
                     </div>
                     <p class="text-sm text-gray-600">{{ cert.issuing_organization }}</p>
                     <p class="text-xs text-gray-500">
@@ -306,7 +326,10 @@
                 {% for link in profile.social_links.all %}
                   <div class="flex items-center gap-2">
                     <a href="{{ link.url }}" target="_blank" class="px-3 py-1 rounded-full text-sm bg-green-50 text-green-700 border border-green-200">{{ link.platform }}</a>
-                    <a href="/user/social-links/{{ link.id }}/edit" class="text-gray-400 hover:text-cyan-600"><i class="fas fa-pen text-xs"></i></a>
+                    <div class="flex gap-2">
+                      <a href="/user/social-links/{{ link.id }}/edit" class="text-gray-400 hover:text-cyan-600"><i class="fas fa-pen text-xs"></i></a>
+                      <button onclick="openDeleteDialog('Delete Social Link', '{{link.platform}}', '/user/social-links/{{ link.id }}/delete/')" class="text-gray-400 hover:text-red-600" title="Delete social link"><i class="fas fa-trash text-xs"></i></button>
+                    </div>
                   </div>
                 {% endfor %}
               </div>
@@ -330,7 +353,10 @@
                   <div class="border border-gray-200 rounded-md p-4">
                     <div class="flex items-center gap-4">
                       <p class="font-medium text-gray-900">{{ project.title }}</p>
-                      <a href="/user/projects/{{ project.id }}/edit" class="text-gray-400 hover:text-cyan-600"><i class="fas fa-pen text-xs"></i></a>
+                      <div class="flex gap-2">
+                        <a href="/user/projects/{{ project.id }}/edit" class="text-gray-400 hover:text-cyan-600" title="Edit project"><i class="fas fa-pen text-xs"></i></a>
+                        <button onclick="openDeleteDialog('Delete Project', '{{ project.title }}', '/user/projects/{{ project.id }}/delete/')" class="text-gray-400 hover:text-red-600" title="Delete project"><i class="fas fa-trash text-xs"></i></button>
+                      </div>
                     </div>
                     <p class="text-sm text-gray-700 mt-1">{{ project.description | linebreaks }}</p>
                     {% if project.project_url %}

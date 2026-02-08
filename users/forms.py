@@ -51,7 +51,7 @@ class UserUpdateForm(forms.ModelForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ( "summary","position", "address", "phone", "nationality", "gender", "profile_image", "dob",  "role", "skills", "preferred_location", "preferred_job_type")
+        fields = ( "summary","position", "address", "phone", "nationality", "gender", "profile_image", "dob",  "role", "skills", "preferred_location", "preferred_job_type", "preferred_work_mode")
 
     def clean_phone(self):
         phone = self.cleaned_data.get("phone")

@@ -5,14 +5,14 @@ from companies.models import Company
 
 class Job(models.Model):
     class EMPLOYMENT_TYPE_CHOICES (models.TextChoices):
-        FullTime = "full_time", "Full Time"
-        PartTime = "part_time", "Part Time"
-        Contract = "contract", "Contract"
-        Intern = "internship", "Internship"    
+        FullTime = "Full Time", "Full Time"
+        PartTime = "Part Time", "Part Time"
+        Contract = "Contract", "Contract"
+        Intern = "Internship", "Internship"    
     class WORK_MODE_CHOICES (models.TextChoices):
-        OnSite = "on_site", "On-site"
-        Remote = "remote", "Remote"
-        Hybrid = "hybrid", "Hybrid"
+        OnSite = "On-site", "On-site"
+        Remote = "Remote", "Remote"
+        Hybrid = "Hybrid", "Hybrid"
 
     title = models.CharField(max_length=150)
     description = models.TextField()

@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from skills.models import Skill
-from .models import Profile
+from .models import Profile, Experience, Education, Certification, SocialLink, Project
 from .forms import *
 from .utils import calculate_total_experience
 
@@ -18,7 +18,7 @@ def register(request):
         if user_form.is_valid():
             user = user_form.save()
             messages.success( request, "Registration successful. Please login to complete your profile." )
-            return redirect("/users/login")
+            return redirect("/user/login")
     else:
         user_form = UserRegistrationForm()
     return render(request, "pages/users/register.html", {"user_form": user_form})
@@ -62,7 +62,7 @@ def logoutUser(request):
     return redirect("/")
 
 
-@login_required(login_url="/users/login")
+@login_required(login_url="/user/login")
 def profile_view(request):
     profile = get_object_or_404(Profile, user=request.user)
     skills = Skill.objects.filter(is_active=True).values("id", "name")
@@ -71,7 +71,7 @@ def profile_view(request):
     return render(  request, "pages/users/profile.html", { "profile": profile, "experience_duration": experience_duration, "skills_ids_str": skills_ids_str, "skills": list(skills)})
 
 
-@login_required(login_url="/users/login")
+@login_required(login_url="/user/login")
 def profile_update(request):
     user = request.user
     profile = user.profile
@@ -87,13 +87,15 @@ def profile_update(request):
             profile.save()
             messages.success(request, "Profile updated successfully.")
             return redirect("profile")
+        else:
+            return render( request,"pages/users/profile_update.html", {"profile_form": profile_form, "user_form": user_form,"profile": profile})
     else:
         profile_form = ProfileForm(instance=profile)
         user_form = UserUpdateForm(instance=user)
         return render( request, "pages/users/profile_update.html", { "profile_form": profile_form, "user_form": user_form, "profile": profile })
 
 
-@login_required(login_url="/users/login")
+@login_required(login_url="/user/login")
 def add_skill(request):
     profile = request.user.profile
     if request.method == "POST":
@@ -105,7 +107,7 @@ def add_skill(request):
     else:
         return redirect("profile")
 
-@login_required(login_url="/users/login")
+@login_required(login_url="/user/login")
 def add_or_edit_experience(request, id=None):
     profile = request.user.profile
     experience = None
@@ -119,7 +121,7 @@ def add_or_edit_experience(request, id=None):
             exp = form.save(commit=False)
             exp.profile = profile
             exp.save()
-            messages.success(  request,  ( "Experience updated successfully." if id else "Experience added successfully."  ))
+            messages.success( request,  ("Experience updated successfully." if id else "Experience added successfully."  ))
             return redirect("profile")
     else:
         form = ExperienceForm(instance=experience)
@@ -130,7 +132,7 @@ def add_or_edit_experience(request, id=None):
             "page_subtitle": ( "Update your work experience details." if id else "Add your work experience details." )
             })
 
-@login_required(login_url="/users/login")
+@login_required(login_url="/user/login")
 def add_or_edit_education(request, id=None):
     profile = request.user.profile
     education = None
@@ -156,7 +158,7 @@ def add_or_edit_education(request, id=None):
             })
 
 
-@login_required(login_url="/users/login")
+@login_required(login_url="/user/login")
 def add_or_edit_certification(request, id=None):
     profile = request.user.profile
     certification = None
@@ -170,7 +172,7 @@ def add_or_edit_certification(request, id=None):
             cert = form.save(commit=False)
             cert.profile = profile
             cert.save()
-            messages.success( request, ( "Certification updated successfully." if id else "Certification added successfully." ))
+            messages.success(request, ("Certification updated successfully." if id else "Certification added successfully." ))
             return redirect("profile")
     else:
         form = CertificationForm(instance=certification)
@@ -178,11 +180,11 @@ def add_or_edit_certification(request, id=None):
     return render( request, "pages/users/profile_form.html", {
             "form": form,
             "page_title": "Edit Certification" if id else "Add Certification",
-            "page_subtitle": ( "Update your professional certifications." if id else "Add your professional certifications.")
+            "page_subtitle": ("Update your professional certifications." if id else "Add your professional certifications.")
             })
 
 
-@login_required(login_url="/users/login")
+@login_required(login_url="/user/login")
 def add_or_edit_social_link(request, id=None):
     profile = request.user.profile
     social_link = None
@@ -196,7 +198,7 @@ def add_or_edit_social_link(request, id=None):
             link = form.save(commit=False)
             link.profile = profile
             link.save()
-            messages.success( request, ( "Social link updated successfully." if id else "Social link added successfully." ))
+            messages.success( request, ("Social link updated successfully." if id else "Social link added successfully." ))
             return redirect("profile")
     else:
         form = SocialLinkForm(instance=social_link)
@@ -204,11 +206,11 @@ def add_or_edit_social_link(request, id=None):
     return render(request, "pages/users/profile_form.html",  {
             "form": form,
             "page_title": "Edit Social Link" if id else "Add Social Link",
-            "page_subtitle": (  "Update your social or professional links."  if id  else "Add your social or professional links.")
+            "page_subtitle": ("Update your social or professional links."  if id  else "Add your social or professional links.")
         })
 
 
-@login_required(login_url="/users/login")
+@login_required(login_url="/user/login")
 def add_or_edit_project(request, id=None):
     profile = request.user.profile
     project = None
@@ -234,8 +236,49 @@ def add_or_edit_project(request, id=None):
         })
 
 
-@login_required(login_url="/users/login")
+@login_required(login_url="/user/login")
+def delete_experience(request, id):
+    profile = request.user.profile
+    experience = get_object_or_404(Experience, id=id, profile=profile)
+    experience.delete()
+    messages.success(request, "Experience deleted successfully.")
+    return redirect("profile")
+
+@login_required(login_url="/user/login")
+def delete_education(request, id):
+    profile = request.user.profile
+    education = get_object_or_404(Education, id=id, profile=profile)
+    education.delete()
+    messages.success(request, "Education deleted successfully.")
+    return redirect("profile")
+
+@login_required(login_url="/user/login")
+def delete_certification(request, id):
+    profile = request.user.profile
+    certification = get_object_or_404(Certification, id=id, profile=profile)
+    certification.delete()
+    messages.success(request, "Certification deleted successfully.")
+    return redirect("profile")
+
+@login_required(login_url="/user/login")
+def delete_social_link(request, id):
+    profile = request.user.profile
+    social_link = get_object_or_404(SocialLink, id=id, profile=profile)
+    social_link.delete()
+    messages.success(request, "Social link deleted successfully.")
+    return redirect("profile")
+
+@login_required(login_url="/user/login")
+def delete_project(request, id):
+    profile = request.user.profile
+    project = get_object_or_404(Project, id=id, profile=profile)
+    project.delete()
+    messages.success(request, "Project deleted successfully.")
+    return redirect("profile")
+
+@login_required(login_url="/user/login")
 def view_resume(request, profile_id):
     profile = get_object_or_404(Profile, id=profile_id)
+    user = profile.user
     experience_duration = calculate_total_experience(profile.experiences.all())
-    return render( request, "pages/users/resume.html", {"profile": profile, "experience_duration": experience_duration})
+    return render( request, "pages/users/resume.html", {"user":user, "profile": profile, "experience_duration": experience_duration})

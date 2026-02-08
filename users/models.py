@@ -8,14 +8,25 @@ class Profile(models.Model):
         return f"users/{instance.user.username}/{filename}"
 
     class RoleOptions(models.TextChoices):
-        Admin = "admin", "Admin"
-        JobSeeker = "jobseeker", "Job Seeker"
-        Recruiter = "recruiter", "Recruiter"
+        Admin = "Admin", "Admin"
+        JobSeeker = "Job Seeker", "Job Seeker"
+        Recruiter = "Recruiter", "Recruiter"
 
     class GenderOptions(models.TextChoices):
         Male = "Male", "Male"
         Female = "Female", "Female"
         Others = "Others", "Others"
+
+    class JobTypeOptions(models.TextChoices):
+        FullTime = "Full Time", "Full Time"
+        PartTime = "Part Time", "Part Time"
+        Contract = "Contract", "Contract"
+        Intern = "Internship", "Internship"
+
+    class WorkModeOptions(models.TextChoices):
+        OnSite = "On-site", "On-site"
+        Remote = "Remote", "Remote"
+        Hybrid = "Hybrid", "Hybrid"
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     position = models.CharField(max_length=100, blank=True)
@@ -29,8 +40,31 @@ class Profile(models.Model):
     role = models.CharField(max_length=10, choices=RoleOptions, default=RoleOptions.JobSeeker)
     skills = models.ManyToManyField(Skill, blank=True, related_name="profiles")
     preferred_location = models.CharField(max_length=100, blank=True)
-    preferred_job_type = models.CharField(max_length=50, blank=True)
+    preferred_job_type = models.CharField(max_length=50, choices=JobTypeOptions, blank=True)
+    preferred_work_mode = models.CharField(max_length=20, choices=WorkModeOptions, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    def completion_percentage(self):
+        checks = [
+            bool(self.position),
+            bool(self.summary),
+            bool(self.address),
+            bool(self.phone),
+            bool(self.dob),
+            bool(self.profile_image),
+            self.skills.exists(),
+            self.educations.exists(),
+            self.experiences.exists(),
+            self.projects.exists(),
+            bool(self.preferred_location),
+            bool(self.preferred_job_type),
+            bool(self.preferred_work_mode),
+        ]
+
+        completed = sum(checks)
+        total = len(checks)
+
+        return int((completed / total) * 100)
 
     def __str__(self):
         return f"{self.user.username}"

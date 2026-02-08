@@ -15,7 +15,7 @@ class JobForm(forms.ModelForm):
     )
     class Meta:
         model = Job
-        exclude = ("recruiter", "posted_by", "created_at", "updated_at")
+        exclude = ("recruiter", "posted_by", "created_at", "updated_at", "skills")
         widgets = {
             'title': forms.TextInput(attrs={'class': INPUT_CLASSES, 'placeholder': 'e.g., Senior Python Developer' }),
             'location': forms.TextInput(attrs={'class': INPUT_CLASSES, 'placeholder': 'e.g., Kathmandu, Nepal' }),

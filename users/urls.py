@@ -19,5 +19,10 @@ urlpatterns = [
     path("social-links/<int:id>/edit", add_or_edit_social_link, name="edit-social-link"),
     path("projects/add/", add_or_edit_project, name="add-project"),
     path("projects/<int:id>/edit/", add_or_edit_project, name="edit-project"),
+    path("experience/<int:id>/delete/", delete_experience, name="delete-experience"),
+    path("education/<int:id>/delete/", delete_education, name="delete-education"),
+    path("certification/<int:id>/delete/", delete_certification, name="delete-certification"),
+    path("social-links/<int:id>/delete/", delete_social_link, name="delete-social-link"),
+    path("projects/<int:id>/delete/", delete_project, name="delete-project"),
     path("resume/<int:profile_id>", view_resume, name="generate-resume"),
 ]

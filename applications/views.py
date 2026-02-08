@@ -4,14 +4,14 @@ from django.contrib import messages
 from jobs.models import Job
 from .models import Application
 
-@login_required(login_url="/users/login/")
+@login_required(login_url="/user/login/")
 def application_list(request):
     user = request.user
     jobs_applied = Application.objects.filter(applicant=user).select_related('job').order_by('-applied_at')
     jobs = [application.job for application in jobs_applied]
     return render(request, "pages/jobs/job_list.html", {"jobs": jobs})
 
-@login_required(login_url="/users/login/")
+@login_required(login_url="/user/login/")
 def apply_job(request, job_id):
     job = get_object_or_404(Job, id=job_id)
     if request.method == "POST":
@@ -20,16 +20,22 @@ def apply_job(request, job_id):
             messages.error(request, "You cannot apply for your own job.")
             return redirect(f"/jobs/{job.id}")
 
-        if Application.objects.filter(job=job, applicant=user).exists():
-            messages.warning(request, "You have already applied for this job.")
-            return redirect(f"/jobs/{job.id}")
+        # Check if user has already applied and was rejected
+        existing_application = Application.objects.filter(job=job, applicant=user).first()
+        if existing_application:
+            if existing_application.status == Application.STATUS_CHOICES.Rejected:
+                messages.error(request, "You cannot apply again for this job as your previous application was rejected.")
+                return redirect(f"/jobs/{job.id}")
+            else:
+                messages.warning(request, "You have already applied for this job.")
+                return redirect(f"/jobs/{job.id}")
 
         Application.objects.create(job=job, applicant=user, status=Application.STATUS_CHOICES.Applied)
         messages.success(request, "Successfully applied for the job.")
     return redirect(f"/jobs/{job.id}")
     
 
-@login_required(login_url="/users/login/")
+@login_required(login_url="/user/login/")
 def cancel_application(request, job_id):
     job = get_object_or_404(Job, id=job_id)
     if request.method == "POST":
@@ -45,16 +51,17 @@ def cancel_application(request, job_id):
     return redirect(f"/jobs/{job.id}")
 
 
-@login_required(login_url="/users/login/")
-def change_application_status(request, application_id, status):
+@login_required(login_url="/user/login/")
+def change_application_status(request, application_id):
     if request.method == "POST":
         application = get_object_or_404(Application, id=application_id)
         job = application.job
         user = request.user
         if not (job.recruiter == user or (job.company and job.company.created_by == user)):
             messages.error(request, "You are not authorized to change application status.")
-            return redirect(f"/jobs/{job.id}")
+            return redirect(f"/jobs/{job.id}/applications")
 
+        status = request.POST.get('status')
         valid_statuses = [
             Application.STATUS_CHOICES.Reviewing,
             Application.STATUS_CHOICES.Shortlisted,
@@ -64,9 +71,9 @@ def change_application_status(request, application_id, status):
 
         if status not in valid_statuses:
             messages.error(request, "Invalid status update.")
-            return redirect(f"/jobs/{job.id}")
+            return redirect(f"/jobs/{job.id}/applications")
 
         application.status = status
         application.save(update_fields=["status"])
         messages.success(request, f"Application status updated to '{application.get_status_display()}'.")
-    return redirect(f"/jobs/{job.id}")
+    return redirect(f"/jobs/{job.id}/applications")
