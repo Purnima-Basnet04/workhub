@@ -158,7 +158,7 @@
           Required Skills
         </h2>
         <div>
-          {% include 'components\skills_input.html' with container_id='skills-container' input_id='skills-input' hidden_id='skills-hidden' dropdown_id='skills-dropdown' suggestions_id='skills-suggestions' name='skills' label='Select Required Skills' placeholder='Type to search and add skills' skills=skills  value=skills_ids_str %}
+          {% include 'components/skills_input.html' with container_id='skills-container' input_id='skills-input' hidden_id='skills-hidden' dropdown_id='skills-dropdown' suggestions_id='skills-suggestions' name='skills' label='Select Required Skills' placeholder='Type to search and add skills' skills=skills  value=skills_ids_str %}
           {% if form.skills.errors %}
           <div class="text-red-600 text-sm mt-2">{{ form.skills.errors }}</div>
           {% endif %}
