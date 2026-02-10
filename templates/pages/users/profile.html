@@ -1,6 +1,6 @@
 {% extends 'layouts/main.html' %}
 {% block content %}
-{% include 'components\delete_dialog.html' %}
+{% include 'components/delete_dialog.html' %}
   <div class="min-h-screen bg-gray-50 py-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-6">
@@ -168,7 +168,7 @@
             </div>
             <form id="skillsForm" action="/user/skills/add/" method="post" class="hidden mt-4">
               {% csrf_token %}
-              {% include 'components\skills_input.html' with container_id='skills-container' input_id='skills-input' hidden_id='skills-hidden' dropdown_id='skills-dropdown' suggestions_id='skills-suggestions' name='skills' label='' placeholder='Type to search skills' skills=skills value=skills_ids_str %}
+              {% include 'components/skills_input.html' with container_id='skills-container' input_id='skills-input' hidden_id='skills-hidden' dropdown_id='skills-dropdown' suggestions_id='skills-suggestions' name='skills' label='' placeholder='Type to search skills' skills=skills value=skills_ids_str %}
               <div class="flex gap-2 mt-3">
                 <button type="submit" class="border rounded-lg px-4 py-1 border-green-500 hover:bg-green-50 duration-300">Save</button>
                 <button type="button" id="cancelSkills" class="border rounded-lg px-4 py-1 border-gray-400 hover:bg-gray-50 duration-300">Cancel</button>
