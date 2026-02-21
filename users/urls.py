@@ -25,4 +25,7 @@ urlpatterns = [
     path("social-links/<int:id>/delete/", delete_social_link, name="delete-social-link"),
     path("projects/<int:id>/delete/", delete_project, name="delete-project"),
     path("resume/<int:profile_id>", view_resume, name="generate-resume"),
+    path("verify-email/<int:user_id>/<str:token>/", verify_email, name="verify-email"),
+    path("verify-otp/", otp_verification, name="verify-otp"),
+    path("resend-otp/", resend_otp, name="resend-otp"),
 ]

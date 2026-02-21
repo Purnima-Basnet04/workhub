@@ -6,8 +6,10 @@ from django.contrib.auth.models import User
 from skills.models import Skill
 from .models import Profile, Experience, Education, Certification, SocialLink, Project
 from .forms import *
-from .utils import calculate_total_experience
-
+from .utils import calculate_total_experience, verify_email as verify_email_token
+from notifications.utils import create_and_send_otp, verify_otp
+from django.contrib import messages
+from django.shortcuts import redirect, render
 
 def register(request):
     if request.user.is_authenticated:
@@ -16,12 +18,136 @@ def register(request):
     if request.method == "POST":
         user_form = UserRegistrationForm(request.POST)
         if user_form.is_valid():
-            user = user_form.save()
-            messages.success( request, "Registration successful. Please login to complete your profile." )
-            return redirect("/user/login")
+            user = user_form.save(commit=False)
+            user.is_active = False  # Deactivate user until email is verified
+            user.save()
+            
+            # Send OTP verification code
+            try:
+                otp, error = create_and_send_otp(user, "Register", user.email)
+                if error:
+                    messages.warning(request, f"Registration successful, but couldn't send verification code. {error} Please try resending the code later.")
+                    # Removed user.is_active = True bypass
+                    return redirect("/user/login")
+                else:
+                    messages.success(request, "Registration successful! Please check your email for the verification code.")
+                    request.session['otp_user_id'] = user.id
+                    import time
+                    request.session['last_otp_sent'] = int(time.time())
+                    return redirect("/user/verify-otp")
+            except Exception as e:
+                messages.warning(request, "Registration successful, but couldn't send verification email. Please try resending the code later.")
+                # Removed user.is_active = True bypass
+                return redirect("/user/login")
+        else:
+            return render(request, "pages/users/register.html", {"user_form": user_form})
     else:
         user_form = UserRegistrationForm()
     return render(request, "pages/users/register.html", {"user_form": user_form})
+
+
+def otp_verification(request):
+    """Verify OTP code after registration"""
+    from django.conf import settings
+    import time
+    
+    user_id = request.session.get('otp_user_id')
+    
+    if not user_id:
+        messages.error(request, "Please register first.")
+        return redirect("/user/register")
+    
+    # Get user to pass email to template
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        messages.error(request, "User not found. Please register again.")
+        return redirect("/user/register")
+    
+    # Get last OTP sent time and calculate remaining cooldown for template
+    last_otp_sent = request.session.get('last_otp_sent')
+    cooldown_seconds = getattr(settings, 'OTP_RESEND_COOLDOWN_SECONDS', 60)
+    remaining_cooldown = 0
+    
+    if last_otp_sent:
+        current_time = int(time.time())
+        time_since_last = current_time - last_otp_sent
+        if time_since_last < cooldown_seconds:
+            remaining_cooldown = cooldown_seconds - time_since_last
+    
+    if request.method == "POST":
+        otp_code = request.POST.get('otp_code', '').strip()
+        
+        if not otp_code:
+            messages.error(request, "Please enter the verification code.")
+            return render(request, "pages/users/otp_verification_page.html", {'remaining_cooldown': remaining_cooldown, 'email': user.email})
+        
+        is_valid, error_message = verify_otp(user, otp_code, "Register")
+        
+        if is_valid:
+            user.is_active = True
+            user.save()
+            del request.session['otp_user_id']
+            if 'last_otp_sent' in request.session:
+                del request.session['last_otp_sent']
+            
+            # Automatically log the user in after verification
+            from django.contrib.auth import login
+            # We explicitly pass the backend since we are bypassing authenticate()
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                
+            messages.success(request, "Your email has been verified successfully! You are now logged in.")
+            return redirect("/dashboard")
+        else:
+            messages.error(request, error_message or "Invalid verification code.")
+            return render(request, "pages/users/otp_verification_page.html", {'remaining_cooldown': remaining_cooldown, 'email': user.email})
+    
+    return render(request, "pages/users/otp_verification_page.html", {'remaining_cooldown': remaining_cooldown, 'email': user.email})
+
+
+def resend_otp(request):
+    """Resend OTP to user's email with cooldown check"""
+    from django.conf import settings
+    import time
+    
+    user_id = request.session.get('otp_user_id')
+    
+    if not user_id:
+        messages.error(request, "Please register first.")
+        return redirect("/user/register")
+    
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        messages.error(request, "User not found. Please register again.")
+        return redirect("/user/register")
+    
+    # Check cooldown from session
+    last_otp_sent = request.session.get('last_otp_sent')
+    cooldown_seconds = getattr(settings, 'OTP_RESEND_COOLDOWN_SECONDS', 60)
+    
+    if last_otp_sent:
+        current_time = int(time.time())
+        time_since_last = current_time - last_otp_sent
+        
+        if time_since_last < cooldown_seconds:
+            remaining_time = cooldown_seconds - time_since_last
+            messages.error(request, f"Please wait {remaining_time} seconds before requesting a new code.")
+            return redirect("/user/verify-otp")
+    
+    # Send new OTP
+    try:
+        otp, error = create_and_send_otp(user, "Register", user.email, email_context="Resend")
+        if error:
+            messages.warning(request, f"Couldn't send verification code. {error}")
+        else:
+            # Update session with current timestamp
+            request.session['last_otp_sent'] = int(time.time())
+            messages.success(request, "A new verification code has been sent to your email.")
+    except Exception as e:
+        messages.warning(request, "Couldn't send verification code. Please try again.")
+    
+    return redirect("/user/verify-otp")
 
 
 def login_user(request):
@@ -35,12 +161,23 @@ def login_user(request):
         check_user = User.objects.filter(username=username).exists()
 
         if check_user:
+            # Get user to check if active
+            user = User.objects.get(username=username)
+            if not user.is_active:
+                # Store user ID in session and redirect to OTP verification page
+                request.session['otp_user_id'] = user.id
+                messages.info(request, "Verification code has already been sent to your email.")
+                return redirect("/user/verify-otp")
+            
             authenticated_user = authenticate(
                 request, username=username, password=password
             )
             if authenticated_user:
                 login(request, authenticated_user)
                 messages.success(request, "You have successfully logged in")
+                # Redirect superusers to admin dashboard
+                if authenticated_user.is_superuser:
+                    return redirect("/admin")
                 return redirect("/dashboard")
             else:
                 messages.error(request, "Invalid Password!")
@@ -282,3 +419,22 @@ def view_resume(request, profile_id):
     user = profile.user
     experience_duration = calculate_total_experience(profile.experiences.all())
     return render( request, "pages/users/resume.html", {"user":user, "profile": profile, "experience_duration": experience_duration})
+
+
+def verify_email(request, user_id, token):
+    """Verify user's email address."""
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        messages.error(request, "Invalid verification link.")
+        return redirect("/user/login")
+    
+    # Verify the token and activate user
+    if verify_email_token(user, token):
+        user.is_active = True
+        user.save()
+        messages.success(request, "Your email has been verified successfully! You can now log in.")
+        return redirect("/user/login")
+    else:
+        messages.error(request, "Invalid or expired verification link.")
+        return redirect("/user/register")

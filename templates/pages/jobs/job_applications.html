@@ -75,7 +75,7 @@
                 </a>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <form method="post" action="{% url 'change_application_status' application.id %}" class="flex items-center space-x-2">
+                <form method="post" action="{% url 'change_application_status' application.id %}" class="flex flex-col space-y-2">
                   {% csrf_token %}
                   <select name="status" class="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500">
                     <option value="reviewing" {% if application.status == 'reviewing' %}selected{% endif %} class="text-yellow-600">Reviewing</option>
@@ -83,6 +83,7 @@
                     <option value="rejected" {% if application.status == 'rejected' %}selected{% endif %} class="text-red-600">Rejected</option>
                     <option value="hired" {% if application.status == 'hired' %}selected{% endif %} class="text-purple-600">Hired</option>
                   </select>
+                  <textarea name="status_message" placeholder="Add a message (optional)" class="px-2 py-1 border border-gray-300 rounded-md text-xs focus:outline-none focus:ring-1 focus:ring-cyan-500" rows="1"></textarea>
                   <button type="submit" class="px-3 py-1 bg-cyan-600 text-white text-sm rounded-md hover:bg-cyan-700 transition">Update</button>
                 </form>
               </td>
