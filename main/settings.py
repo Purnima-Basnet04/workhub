@@ -157,4 +157,4 @@ OTP_EXPIRY_HOURS = 24  # OTP valid for 24 hours
 OTP_RESEND_COOLDOWN_SECONDS = 60  # Cannot resend OTP within 1 minute
 "" 
 
-CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
+# CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")

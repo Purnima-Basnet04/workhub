@@ -46,20 +46,30 @@
 
             <div class="space-y-2">
               <label for="password1" class="block text-sm font-semibold text-gray-700 normal-case">Password</label>
-              <input class="{{ input_classes }}" type="password" id="password1" name="password1" />
+              <div class="relative">
+                <input class="{{ input_classes }} pr-10" type="password" id="password1" name="password1" />
+                <button type="button" onclick="togglePassword('password1', 'password1Icon')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                  <i id="password1Icon" class="fas fa-eye text-sm text-cyan-600"></i>
+                </button>
+              </div>
               {% if user_form.errors.password1 %}{% for error in user_form.errors.password1 %}
                 <div class="{{ error_classes }}">{{ error }}</div>
               {% endfor %}{% endif %}
             </div>
             <div class="space-y-2">
               <label for="password2" class="block text-sm font-semibold text-gray-700 normal-case">Confirm Password</label>
-              <input class="{{ input_classes }}" type="password" id="password2" name="password2" />
+              <div class="relative">
+                <input class="{{ input_classes }} pr-10" type="password" id="password2" name="password2" />
+                <button type="button" onclick="togglePassword('password2', 'password2Icon')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                  <i id="password2Icon" class="fas fa-eye text-sm text-cyan-600"></i>
+                </button>
+              </div>
               {% if user_form.errors.password2 %}
                 <span class="{{ error_classes }}">{{ user_form.errors.password2 }}</span>
               {% endif %}
             </div>
-          <div class="w-full flex">
-            <button type="submit" class="w-1/3 mx-auto bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors shadow-lg hover:shadow-xl">Sign Up</button>
+          <div class="w-full flex mt-2">
+            <button type="submit" class="w-1/3 mx-auto bg-gradient-to-br from-cyan-500 via-cyan-600 to-cyan-700 hover:from-cyan-600 hover:via-cyan-700 hover:to-cyan-800 text-white font-semibold py-2 px-6 rounded-lg transition-colors shadow-lg hover:shadow-xl transition-all duration-300">Sign Up</button>
           </div>
         </form>
       </div>

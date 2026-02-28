@@ -95,21 +95,22 @@
     {% endif %}
     <nav class="fixed w-full z-50 bg-white shadow-md border-b-[6px] border-cyan-700 rounded-lg no-print">
       <div class="mx-auto px-4 sm:px-6 lg:px-8 ml-[5%] mr-[5%]">
-        <div class="grid grid-cols-4 space-x-4 items-center h-16">
-          <a href="/" class="flex items-center gap-2">
+        <div class="grid grid-cols-8 space-x-6 items-center h-16">
+          <a href="/" class="flex items-center gap-2 col-span-2">
             <img class="h-10 w-10" src="/media/system_image/logo1.png" alt="Logo" />
             <h1 class="hidden md:block text-2xl font-bold text-cyan-600">WorkHub</h1>
           </a>
-          <div class="col-span-2 relative">
-            <form method="GET" action="/jobs" class="flex items-center">
-              <input type="text" name="search" placeholder="Search jobs..." value="{{ request.GET.search }}" class="w-[100%] pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-sm" />
-              <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-              <button type="submit" class="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 bg-cyan-600 text-white text-xs rounded-md hover:bg-cyan-700 transition duration-300">Go</button>
-            </form>
+
+          <!-- Search Bar -->
+          <div class="col-span-4 relative">
+            {% if request.path != "/" %}
+              {% include 'components/search_bar.html' %}
+            {% endif %}
           </div>
+
           {% if request.user.is_authenticated %}
-            <div class="hidden md:flex items-center space-x-8 ms-auto relative">
-              <a href="/dashboard" class="mt-auto flex flex-col space-y-2 items-center text-gray-700 hover:text-cyan-600 transition duration-300">
+            <div class="hidden md:flex items-center space-x-8 ms-auto relative col-span-2">
+              <a href="/dashboard" class="ml-auto mt-auto flex flex-col space-y-2 items-center text-gray-700 hover:text-cyan-600 transition duration-300">
                 <i class="fa fa-xl fa-home"></i>
                 <span class="">Home</span>
               </a>
@@ -161,9 +162,9 @@
               </div>
             </div>
           {% else %}
-            <div class="hidden md:flex items-center space-x-4">
-              <a href="/user/login" class="border-b-2 border-cyan-100 rounded-lg px-6 py-2 hover:shadow-md hover:shadow-cyan-200 text-gray-700 font-semibold hover:text-cyan-600 transition duration-300">LOG IN</a>
-              <a href="/user/register" class="bg-cyan-600 text-white px-6 py-2 rounded-lg hover:bg-cyan-700 transition duration-300">Get Started</a>
+            <div class="hidden md:flex items-center space-x-4 col-span-2">
+              <a href="/user/login" class="ml-auto border-b-2 border-cyan-100 rounded-lg px-6 py-2 hover:shadow-md hover:shadow-cyan-200 text-gray-700 font-semibold hover:text-cyan-600 transition duration-300">LOG IN</a>
+              <a href="/user/register" class="bg-gradient-to-br from-cyan-500 via-cyan-600 to-cyan-700  hover:from-cyan-600 hover:via-cyan-700 hover:to-cyan-800 transition-all duration-300 text-white px-6 py-2 rounded-lg">Get Started</a>
             </div>
           {% endif %}
         </div>
@@ -275,6 +276,21 @@
           }
         }
       })
+
+      function togglePassword(inputId, iconId) {
+        const passwordInput = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          icon.classList.remove('fa-eye');
+          icon.classList.add('fa-eye-slash');
+        } else {
+          passwordInput.type = 'password';
+          icon.classList.remove('fa-eye-slash');
+          icon.classList.add('fa-eye');
+        }
+      }
     </script>
   </body>
 </html>
