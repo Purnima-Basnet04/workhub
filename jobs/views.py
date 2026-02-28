@@ -16,8 +16,9 @@ def job_list(request):
             Q(title__icontains=search) |
             Q(company__name__icontains=search) |
             Q(description__icontains=search) |
-            Q(location__icontains=search)
-        )
+            Q(location__icontains=search) |
+            Q(skills__name__icontains=search)
+        ).distinct()
     location = request.GET.get('location', '').strip()
     if location:
         jobs = jobs.filter(location__icontains=location)

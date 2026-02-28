@@ -130,7 +130,9 @@ skills = [
     
     # Agriculture
     "Farm Management", "Crop Production", "Agricultural Technology", "Soil Science", "Animal Husbandry",
+    
 ]
+
 
 # Add skills to database
 count = 0
