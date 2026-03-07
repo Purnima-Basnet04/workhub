@@ -26,7 +26,7 @@ def register(request):
             try:
                 otp, error = create_and_send_otp(user, "Register", user.email)
                 if error:
-                    messages.warning(request, f"Registration successful, but couldn't send verification code. {error} Please try resending the code later.")
+                    messages.warning(request, f"Registration successful, but couldn't send verification code. Please try resending the code later.")
                     # Removed user.is_active = True bypass
                     return redirect("/user/login")
                 else:
@@ -433,8 +433,235 @@ def verify_email(request, user_id, token):
     if verify_email_token(user, token):
         user.is_active = True
         user.save()
-        messages.success(request, "Your email has been verified successfully! You can now log in.")
+        messages.success(request, "Your email has been verified successfully!")
         return redirect("/user/login")
     else:
         messages.error(request, "Invalid or expired verification link.")
         return redirect("/user/register")
+
+
+def forgot_password(request):
+    """Handle forgot password request - send OTP to user's email."""
+    if request.user.is_authenticated:
+        return redirect("/dashboard")
+    
+    errors = {}
+    
+    if request.method == "POST":
+        email = request.POST.get("email", "").strip()
+        
+        if not email:
+            errors["email"] = "Email is required."
+            return render(request, "pages/users/password_reset.html", {"errors": errors})
+        
+        # Check if user exists with this email
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            errors["email"] = "No account found with this email address."
+            return render(request, "pages/users/password_reset.html", {"errors": errors})
+        
+        # Check if user is active
+        if not user.is_active:
+            messages.error(request, "This account is not active. Please contact support.")
+            return render(request, "pages/users/password_reset.html", {"errors": errors})
+        
+        # Send OTP for password reset
+        try:
+            otp, error = create_and_send_otp(user, "PasswordReset", user.email)
+            if error:
+                messages.warning(request, f"Couldn't send verification code. {error}")
+            else:
+                # Store user ID in session for OTP verification
+                request.session['password_reset_user_id'] = user.id
+                import time
+                request.session['last_otp_sent'] = int(time.time())
+                messages.success(request, "A verification code has been sent to your email.")
+                return redirect("/user/password-reset-otp/")
+        except Exception as e:
+            messages.warning(request, "Couldn't send verification code. Please try again.")
+    
+    return render(request, "pages/users/password_reset.html", {"errors": errors})
+
+
+def password_reset_otp(request):
+    """Verify OTP code for password reset."""
+    from django.conf import settings
+    import time
+    
+    user_id = request.session.get('password_reset_user_id')
+    
+    if not user_id:
+        messages.error(request, "Please initiate password reset first.")
+        return redirect("/user/forgot-password")
+    
+    # Get user to pass email to template
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        messages.error(request, "User not found. Please try again.")
+        return redirect("/user/forgot-password")
+    
+    # Get last OTP sent time and calculate remaining cooldown for template
+    last_otp_sent = request.session.get('last_otp_sent')
+    cooldown_seconds = getattr(settings, 'OTP_RESEND_COOLDOWN_SECONDS', 60)
+    remaining_cooldown = 0
+    
+    if last_otp_sent:
+        current_time = int(time.time())
+        time_since_last = current_time - last_otp_sent
+        if time_since_last < cooldown_seconds:
+            remaining_cooldown = cooldown_seconds - time_since_last
+    
+    if request.method == "POST":
+        otp_code = request.POST.get('otp_code', '').strip()
+        
+        if not otp_code:
+            messages.error(request, "Please enter the verification code.")
+            return render(request, "pages/users/otp_verification_page.html", {
+                'remaining_cooldown': remaining_cooldown,
+                'email': user.email,
+                'page_title': 'Reset Your Password',
+                'page_subtitle': "We've sent a 6-digit verification code to",
+                'button_text': 'Verify & Continue',
+                'verify_url': '/user/password-reset-otp/',
+                'resend_url': '/user/resend-password-reset-otp/',
+                'icon_class': 'fa-solid fa-key',
+                'back_link_text': 'Wrong email?',
+                'back_link_url': '/user/forgot-password/',
+                'back_link_action': 'Try with a different address'
+            })
+        
+        is_valid, error_message = verify_otp(user, otp_code, "PasswordReset")
+        
+        if is_valid:
+            # Mark OTP as used and redirect to new password page
+            # Store user ID in session for password reset
+            request.session['password_reset_verified'] = True
+            messages.success(request, "Verification successful! Please enter your new password.")
+            return redirect("/user/reset-password")
+        else:
+            messages.error(request, error_message or "Invalid verification code.")
+            return render(request, "pages/users/otp_verification_page.html", {
+                'remaining_cooldown': remaining_cooldown,
+                'email': user.email,
+                'page_title': 'Reset Your Password',
+                'page_subtitle': "We've sent a 6-digit verification code to",
+                'button_text': 'Verify & Continue',
+                'verify_url': '/user/password-reset-otp/',
+                'resend_url': '/user/resend-password-reset-otp/',
+                'icon_class': 'fa-solid fa-key',
+                'back_link_text': 'Wrong email?',
+                'back_link_url': '/user/forgot-password/',
+                'back_link_action': 'Try with a different address'
+            })
+    
+    return render(request, "pages/users/otp_verification_page.html", {
+        'remaining_cooldown': remaining_cooldown,
+        'email': user.email,
+        'page_title': 'Reset Your Password',
+        'page_subtitle': "We've sent a 6-digit verification code to",
+        'button_text': 'Verify & Continue',
+        'verify_url': '/user/password-reset-otp/',
+        'resend_url': '/user/resend-password-reset-otp/',
+        'icon_class': 'fa-solid fa-key',
+        'back_link_text': 'Wrong email?',
+        'back_link_url': '/user/forgot-password/',
+        'back_link_action': 'Try with a different address'
+    })
+
+
+def resend_password_reset_otp(request):
+    """Resend OTP for password reset."""
+    from django.conf import settings
+    import time
+    
+    user_id = request.session.get('password_reset_user_id')
+    
+    if not user_id:
+        messages.error(request, "Please initiate password reset first.")
+        return redirect("/user/forgot-password")
+    
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        messages.error(request, "User not found. Please try again.")
+        return redirect("/user/forgot-password")
+    
+    # Check cooldown from session
+    last_otp_sent = request.session.get('last_otp_sent')
+    cooldown_seconds = getattr(settings, 'OTP_RESEND_COOLDOWN_SECONDS', 60)
+    
+    if last_otp_sent:
+        current_time = int(time.time())
+        time_since_last = current_time - last_otp_sent
+        
+        if time_since_last < cooldown_seconds:
+            remaining_time = cooldown_seconds - time_since_last
+            messages.error(request, f"Please wait {remaining_time} seconds before requesting a new code.")
+            return redirect("/user/password-reset-otp")
+    
+    # Send new OTP
+    try:
+        otp, error = create_and_send_otp(user, "PasswordReset", user.email, email_context="Resend")
+        if error:
+            messages.warning(request, f"Couldn't send verification code. {error}")
+        else:
+            # Update session with current timestamp
+            request.session['last_otp_sent'] = int(time.time())
+            messages.success(request, "A new verification code has been sent to your email.")
+    except Exception as e:
+        messages.warning(request, "Couldn't send verification code. Please try again.")
+    
+    return redirect("/user/password-reset-otp")
+
+
+def reset_password(request):
+    """Set new password after OTP verification."""
+    user_id = request.session.get('password_reset_user_id')
+    is_verified = request.session.get('password_reset_verified')
+    
+    if not user_id or not is_verified:
+        messages.error(request, "Please complete the verification process first.")
+        return redirect("/user/forgot-password")
+    
+    # Get user
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        messages.error(request, "User not found. Please try again.")
+        return redirect("/user/forgot-password")
+    
+    errors = {}
+    
+    if request.method == "POST":
+        new_password = request.POST.get("new_password", "")
+        confirm_password = request.POST.get("confirm_password", "")
+        
+        # Validate passwords
+        if not new_password:
+            errors["new_password"] = "New password is required."
+        elif len(new_password) < 8:
+            errors["new_password"] = "Password must be at least 8 characters."
+        
+        if not confirm_password:
+            errors["confirm_password"] = "Please confirm your password."
+        elif new_password != confirm_password:
+            errors["confirm_password"] = "Passwords do not match."
+        
+        if not errors:
+            # Set new password
+            user.set_password(new_password)
+            user.save()
+            
+            # Clear session
+            del request.session['password_reset_user_id']
+            if 'password_reset_verified' in request.session:
+                del request.session['password_reset_verified']
+            if 'last_otp_sent' in request.session:
+                del request.session['last_otp_sent']
+            
+            messages.success(request, "Password has been reset successfully!")
+            return redirect("/user/login")
+    
+    return render(request, "pages/users/new_password.html", {"errors": errors})

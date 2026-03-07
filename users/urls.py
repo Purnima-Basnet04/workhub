@@ -28,4 +28,8 @@ urlpatterns = [
     path("verify-email/<int:user_id>/<str:token>/", verify_email, name="verify-email"),
     path("verify-otp/", otp_verification, name="verify-otp"),
     path("resend-otp/", resend_otp, name="resend-otp"),
+    path("forgot-password/", forgot_password, name="forgot-password"),
+    path("password-reset-otp/", password_reset_otp, name="password-reset-otp"),
+    path("resend-password-reset-otp/", resend_password_reset_otp, name="resend-password-reset-otp"),
+    path("reset-password/", reset_password, name="reset-password"),
 ]

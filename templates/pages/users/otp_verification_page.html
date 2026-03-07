@@ -39,18 +39,18 @@
     <!-- Icon -->
     <div class="w-10 h-10 rounded-2xl flex items-center justify-center"
          style="background: linear-gradient(135deg, #cffafe, #a5f3fc);">
-      <i class="fa-regular fa-envelope text-2xl text-cyan-600"></i>
+      <i class="{{ icon_class|default:'fa-regular fa-envelope' }} text-2xl text-cyan-600"></i>
     </div>
 
-    <h1 class="text-2xl font-semibold text-gray-900 tracking-tight mb-1">Check your email</h1>
+    <h1 class="text-2xl font-semibold text-gray-900 tracking-tight mb-1">{{ page_title|default:"Check your email" }}</h1>
     </div>
     <p class="text-sm text-gray-500 leading-relaxed mb-8">
-      We've sent a 6-digit verification code to
+      {{ page_subtitle|default:"We've sent a 6-digit verification code to" }}
       Enter it below to verify your account.
     </p>
 
     <!-- Verify form -->
-    <form method="POST" action="{% url 'verify-otp' %}">
+    <form method="POST" action="{{ verify_url }}">
       {% csrf_token %}
 
       <label for="otp_code" class="font-semibold text-cyan-600 block tracking-widest mb-2 ml-1">
@@ -72,7 +72,7 @@
       <button type="submit"
               class="btn-verify w-full mt-4 py-3 bg-cyan-500 text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 border-0 cursor-pointer transition-all duration-200">
         <i class="fa-solid fa-circle-check text-base"></i>
-        Verify Email
+        {{ button_text|default:"Verify Email" }}
       </button>
     </form>
 
@@ -86,7 +86,7 @@
     <!-- Resend section -->
     <div class="text-center">
       <p class="text-sm text-gray-400 mb-3">Didn't receive the code?</p>
-      <form method="POST" action="{% url 'resend-otp' %}" id="resend-form">
+      <form method="POST" action="{{ resend_url }}" id="resend-form">
         {% csrf_token %}
         <button type="submit"
                 id="resend-btn"
@@ -102,12 +102,12 @@
       </form>
     </div>
 
-    <!-- Register link -->
+    <!-- Back link -->
     <div class="mt-3 pt-5 border-t border-gray-100 text-center text-xs text-gray-400">
-      Wrong email?
-      <a href="{% url 'register' %}"
+      {{ back_link_text|default:"Wrong email?" }}
+      <a href="{{ back_link_url|default:'/user/register' }}"
          class="text-cyan-600 font-medium no-underline hover:text-cyan-800 transition-colors duration-200">
-        Register with a different address
+        {{ back_link_action|default:"Register with a different address" }}
       </a>
     </div>
 

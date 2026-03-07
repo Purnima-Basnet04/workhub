@@ -57,6 +57,10 @@ def send_otp_email(user, otp_code, purpose, email, email_context=None):
         subject = 'Your New Verification Code - Workhub'
         headline = "Your <em>new</em> verification code"
         body_text = f"As requested, here is your new verification code. Please enter it to verify your account."
+    elif purpose == "PasswordReset":
+        subject = 'Reset Your Password - Workhub'
+        headline = "Reset Your <em>Password</em>"
+        body_text = f"We received a request to reset your password. Use the code below to verify your identity and create a new password."
     else:
         subject = 'Verify Your Email - Workhub'
         headline = "Welcome to <em>Workhub</em>!"
