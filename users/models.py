@@ -43,6 +43,47 @@ class Profile(models.Model):
     preferred_job_type = models.CharField(max_length=50, choices=JobTypeOptions, blank=True)
     preferred_work_mode = models.CharField(max_length=20, choices=WorkModeOptions, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    search_vector = models.TextField(blank=True, null=True)
+
+    def update_search_vector(self):
+        components = [
+            self.position,
+            self.summary,
+            self.address,
+            self.nationality,
+            self.gender,
+            self.role,
+            self.preferred_location,
+            self.preferred_job_type,
+            self.preferred_work_mode,
+        ]
+
+        # Add related skills
+        for skill in self.skills.all():
+            components.append(skill.name)
+
+        # Add experiences
+        for exp in self.experiences.all():
+            components.extend([exp.job_title, exp.company_name, exp.description])
+
+        # Add education
+        for edu in self.educations.all():
+            components.extend([edu.degree, edu.field_of_study, edu.institution_name, edu.description])
+
+        # Add projects
+        for proj in self.projects.all():
+            components.extend([proj.title, proj.description])
+
+        # Add certifications
+        for cert in self.certifications.all():
+            components.extend([cert.name, cert.issuing_organization])
+
+        # Filter out empty/None values and join with space
+        valid_components = [str(comp).strip() for comp in components if comp]
+        self.search_vector = " ".join(valid_components)
+        
+        # Using update to avoid saving the whole model and triggering signals infinitely
+        Profile.objects.filter(pk=self.pk).update(search_vector=self.search_vector)
     
     def completion_percentage(self):
         checks = [

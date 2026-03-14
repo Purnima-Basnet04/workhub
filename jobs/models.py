@@ -29,6 +29,28 @@ class Job(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    search_vector = models.TextField(blank=True, null=True)
+
+    def update_search_vector(self):
+        components = [
+            self.title,
+            self.description,
+            self.location,
+            self.employment_type,
+            self.work_mode,
+            self.company.name if self.company else "",
+            self.company.industry if self.company and hasattr(self.company, 'industry') else "",
+            self.company.description if self.company and hasattr(self.company, 'description') else "",
+        ]
+        
+        # Add required skills
+        for skill in self.skills.all():
+            components.append(skill.name)
+
+        # Filter out empty/None values and join with space
+        valid_components = [str(comp).strip() for comp in components if comp]
+        self.search_vector = " ".join(valid_components)
+        Job.objects.filter(pk=self.pk).update(search_vector=self.search_vector)
 
     def __str__(self):
         return f"{self.title} - {self.company.name}"

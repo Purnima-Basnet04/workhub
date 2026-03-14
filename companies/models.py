@@ -28,7 +28,7 @@ class Company(models.Model):
     industry = models.CharField(max_length=100)
     organization_size = models.CharField(max_length=20, choices=OrganizationSize.choices)
     organization_type = models.CharField(max_length=20, choices=OrganizationType.choices)
-    logo = models.ImageField(upload_to=generateImagePath,default="users/default_company.png")
+    logo = models.ImageField(upload_to=generateImagePath, default="companies/default_company.png")
     tagline = models.CharField(max_length=120, blank=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="companies_created")
     created_at = models.DateTimeField(auto_now_add=True)

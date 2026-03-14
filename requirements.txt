@@ -5,3 +5,4 @@ dj-database-url
 python-dotenv
 whitenoise
 pillow
+scikit-learn
