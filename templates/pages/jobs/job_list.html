@@ -1,13 +1,10 @@
 {% extends 'layouts/main.html' %}
 {% block content %}
 <div class="min-h-screen bg-gray-50 py-4">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="max-w-[90%] mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between mb-6 gap-4">
       <div class="">
         <h1 class="text-3xl font-bold text-gray-900">Browse Jobs</h1>
-        <p class="text-sm text-gray-600">
-          Job{{ jobs.count|pluralize }} : <span class="font-semibold">{{ jobs.count }}</span>
-        </p>
       </div>
 
       <div class="flex items-center gap-3">
@@ -60,20 +57,7 @@
                        placeholder="0" min="0"
                        class="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
               </div>
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label for="min_salary" class="block text-sm font-medium text-gray-700 mb-1">Min Salary</label>
-                  <input type="number" name="min_salary" id="min_salary" value="{{ request.GET.min_salary }}" 
-                         placeholder="50000" min="0"
-                         class="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
-                </div>
-                <div>
-                  <label for="max_salary" class="block text-sm font-medium text-gray-700 mb-1">Max Salary</label>
-                  <input type="number" name="max_salary" id="max_salary" value="{{ request.GET.max_salary }}" 
-                         placeholder="100000" min="0"
-                         class="w-full px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
-                </div>
-              </div>
+              {% include 'components/salary_range_slider.html' with inline=false min_id='filter_min_salary' max_id='filter_max_salary' min_value=request.GET.min_salary|default:'0' max_value=request.GET.max_salary|default:'50000' include_inputs=True %}
 
               <input type="hidden" name="sort" value="{{ request.GET.sort }}">
               <div class="flex items-center gap-2 pt-2 border-t">
@@ -122,7 +106,7 @@
         </div>
 
         {% if user.profile.role == 'Recruiter' and user.companies_created.exists %}
-          <a href="{% url 'job_create' %}" class="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-cyan-600 hover:bg-cyan-700 transition duration-300">
+          <a href="{% url 'job_create' %}" class="inline-flex items-center justify-center px-4 py-1 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-cyan-600 hover:bg-cyan-700 transition duration-300">
             <i class="fas fa-plus mr-2"></i>
             Post Job
           </a>
@@ -136,196 +120,30 @@
       </div>
     </div>
     {% if jobs %}
-    <div class="space-y-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       {% for job in jobs %}
-      <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300 overflow-hidden">
-        <div class="p-6">
-          <div class="flex items-start justify-between">
-            <div class="flex-1">
-              <div class="flex items-start gap-4">
-                <a href="?company={{ job.company.public_url }}{% if request.GET.location %}&location={{ request.GET.location }}{% endif %}{% if request.GET.employment_type %}&employment_type={{ request.GET.employment_type }}{% endif %}{% if request.GET.work_mode %}&work_mode={{ request.GET.work_mode }}{% endif %}{% if request.GET.min_experience %}&min_experience={{ request.GET.min_experience }}{% endif %}{% if request.GET.min_salary %}&min_salary={{ request.GET.min_salary }}{% endif %}{% if request.GET.max_salary %}&max_salary={{ request.GET.max_salary }}{% endif %}"
-                  class="flex-shrink-0 w-16 h-16 bg-gradient-to-br from-gray-50 to-gray-300 rounded-lg flex items-center justify-center text-white font-bold text-xl">
-                  <img src="{{ job.company.logo.url }}" alt="{{ job.company.name }}" class="w-12 h-12 object-contain rounded-full">
-                </a>
-                <div class="flex-1">
-                  <div class="flex items-start justify-between">
-                    <div class="flex-1">
-                      <div class="flex items-center justify-between">
-                        <div>
-                          <h3 class="text-xl font-semibold text-gray-900 hover:text-cyan-600 transition duration-300">
-                            <a href="{% url 'job_detail' job.id %}">{{ job.title }}</a>
-                          </h3>
-                          <p class="text-gray-600 mt-1">{{ job.company.name }}</p>
-                        </div>
-                        {% if job.application_status %}
-                        <span class="text-xs md:text-sm font-medium
-                          {% if job.application_status == 'applied' %}text-blue-700{% endif %}
-                          {% if job.application_status == 'reviewing' %}text-yellow-700{% endif %}
-                          {% if job.application_status == 'shortlisted' %}text-green-700{% endif %}
-                          {% if job.application_status == 'rejected' %}text-red-700{% endif %}
-                          {% if job.application_status == 'hired' %}text-purple-700{% endif %}">
-                          Application Status: {{ job.application_status|title }}
-                        </span>
-                        {% endif %}
-                      </div>
-                    </div>
-                    {% if job.recruiter == user %}
-                    <div class="flex items-center gap-2">
-                      <a href="{% url 'job_update' job.id %}" class="px-3 py-1 text-sm text-cyan-600 hover:text-cyan-700 border border-cyan-600 rounded-md hover:bg-cyan-50 transition duration-300">
-                        <i class="fas fa-edit mr-1"></i>Edit
-                      </a>
-                      <button type="button" onclick="openDeleteModal({{ job.id }})"
-                              class="px-3 py-1 text-sm text-red-600 hover:text-red-700 border border-red-600 rounded-md hover:bg-red-50 transition duration-300">
-                        <i class="fas fa-trash mr-1"></i>Delete
-                      </button>
-                      <!-- Hidden form for actual deletion -->
-                      <form id="deleteForm-{{ job.id }}" method="POST" action="{% url 'job_delete' job.id %}" class="hidden">
-                        {% csrf_token %}
-                      </form>
-                      <div id="deleteModal-{{ job.id }}" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 z-50 flex items-center justify-center p-4">
-                        <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6 transform transition-all">
-                          <div class="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full mb-4">
-                            <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
-                          </div>
-                          <h3 class="text-lg font-semibold text-gray-900 text-center mb-2">
-                            Delete Job Posting
-                          </h3>
-                          <p class="text-sm text-gray-600 text-center mb-6">
-                            Are you sure you want to delete "{{ job.title }}"? This action cannot be undone and all associated applications will be permanently removed.
-                          </p>
-                          <div class="flex gap-3">
-                            <button type="button" onclick="closeDeleteModal({{ job.id }})"  class="bg-cyan-500 flex-1 px-4 py-2 text-sm font-medium text-white rounded-md hover:bg-cyan-600 transition duration-300">
-                              Cancel
-                            </button>
-                            <button type="button" onclick="document.getElementById('deleteForm-{{ job.id }}').submit()"
-                                    class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 transition duration-300">
-                              Delete Job
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    <script>
-                      function openDeleteModal(jobId) {
-                        document.getElementById('deleteModal-' + jobId).classList.remove('hidden');
-                        document.body.style.overflow = 'hidden'; 
-                      }
-                      function closeDeleteModal(jobId) {
-                        document.getElementById('deleteModal-' + jobId).classList.add('hidden');
-                        document.body.style.overflow = 'auto'; 
-                      }
-                      document.addEventListener('keydown', function(event) {
-                        if (event.key === 'Escape') {
-                          const modals = document.querySelectorAll('[id^="deleteModal-"]');
-                          modals.forEach(modal => {
-                            if (!modal.classList.contains('hidden')) {
-                              modal.classList.add('hidden');
-                              document.body.style.overflow = 'auto';
-                            }
-                          });
-                        }
-                      });
-                      document.addEventListener('click', function(event) {
-                      const modals = document.querySelectorAll('[id^="deleteModal-"]');
-                      modals.forEach(modal => {
-                        if (event.target === modal) {
-                          modal.classList.add('hidden');
-                          document.body.style.overflow = 'auto';
-                        }
-                      });
-                    });
-                    </script>
-                    </div>
-                    {% endif %}
-                  </div>
-                  <div class="flex flex-wrap items-center gap-4 mt-3 text-sm text-gray-600">
-                    <span class="flex items-center">
-                      <i class="fas fa-map-marker-alt mr-1 text-cyan-600"></i>
-                      {{ job.location }}
-                    </span>
-                    <span class="flex items-center">
-                      <i class="fas fa-briefcase mr-1 text-cyan-600"></i>
-                      {{ job.get_employment_type_display }}
-                    </span>
-                    <span class="flex items-center">
-                      <i class="fas fa-laptop-house mr-1 text-cyan-600"></i>
-                      {{ job.get_work_mode_display }}
-                    </span>
-                    <span class="flex items-center">
-                      <i class="fas fa-clock mr-1 text-cyan-600"></i>
-                      {{ job.min_experience }} year{{ job.min_experience|pluralize }} exp
-                    </span>
-                    {% if job.salary_min and job.salary_max %}
-                    <span class="flex items-center font-semibold text-green-600">
-                      ${{ job.salary_min|floatformat:0 }} - ${{ job.salary_max|floatformat:0 }}
-                    </span>
-                    {% endif %}
-                  </div>
-                  {% if job.skills.all %}
-                  <div class="flex flex-wrap gap-2 mt-3">
-                    {% for skill in job.skills.all|slice:":5" %}
-                    <span class="px-3 py-1 bg-cyan-50 text-cyan-700 text-xs font-medium rounded-full border border-cyan-200">
-                      {{ skill.name }}
-                    </span>
-                    {% endfor %}
-                    {% if job.skills.count > 5 %}
-                    <span class="px-3 py-1 bg-gray-100 text-gray-600 text-xs font-medium rounded-full">
-                      +{{ job.skills.count|add:"-5" }} more
-                    </span>
-                    {% endif %}
-                  </div>
-                  {% endif %}
-                  <p class="mt-3 text-sm text-gray-600 line-clamp-2">
-                    {{ job.description|truncatewords:30 }}
-                  </p>
-                  <div class="flex items-center justify-between mt-4">
-                    <div class="flex items-center gap-4 text-xs text-gray-500">
-                      <span>
-                        <i class="fas fa-users mr-1"></i>
-                        {{ job.vacancies }} position{{ job.vacancies|pluralize }}
-                      </span>
-                      <span>
-                        <i class="fas fa-calendar mr-1"></i>
-                        Posted {{ job.created_at|timesince }} ago
-                      </span>
-                      {% if job.application_status %}
-                      <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full font-medium">
-                        <i class="fas fa-check-circle mr-1"></i>
-                        {{ job.application_status|title }}
-                      </span>
-                      {% endif %}
-                    </div>
-                    <a href="{% url 'job_detail' job.id %}" class="inline-flex items-center px-4 py-2 bg-cyan-600 text-white text-sm font-medium rounded-md hover:bg-cyan-700 transition duration-300">
-                      View Details
-                      <i class="fas fa-arrow-right ml-2"></i>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+        {% include 'components/job_card.html' with job=job hide_matching_score=True show_recruiter_actions=True %}
       {% endfor %}
     </div>
     {% if is_paginated %}
     <div class="mt-8 flex items-center justify-center">
       <nav class="flex items-center gap-2">
         {% if page_obj.has_previous %}
-        <a href="?page=1" class="px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">
+        <a href="?page=1" class="px-3 py-2 border border-cyan-800 bg-cyan-600 rounded-xl text-sm text-white hover:bg-cyan-700 transition duration-300">
           <i class="fas fa-angle-double-left"></i>
         </a>
-        <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">
+        <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-2 border border-cyan-800 bg-cyan-600 rounded-xl text-sm text-white hover:bg-cyan-700 transition duration-300">
           <i class="fas fa-angle-left"></i>
         </a>
         {% endif %}
-        <span class="px-4 py-2 text-sm text-gray-700">
+        <span class="px-4 py-2 text-sm font-semibold text-gray-700">
           Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
         </span>
         {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">
+        <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-2 border border-cyan-800 bg-cyan-600 rounded-xl text-sm text-white hover:bg-cyan-700 transition duration-300">
           <i class="fas fa-angle-right"></i>
         </a>
-        <a href="?page={{ page_obj.paginator.num_pages }}" class="px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-700 hover:bg-gray-50">
+        <a href="?page={{ page_obj.paginator.num_pages }}" class="px-3 py-2 border border-cyan-800 bg-cyan-600 rounded-xl text-sm text-white hover:bg-cyan-700 transition duration-300">
           <i class="fas fa-angle-double-right"></i>
         </a>
         {% endif %}
@@ -450,6 +268,38 @@ document.addEventListener('DOMContentLoaded', function() {
   if (activeCount > 0) {
     document.getElementById('activeFiltersCount').textContent = `(${activeCount})`;
   }
+});
+
+function openDeleteModal(jobId) {
+    document.getElementById('deleteModal-' + jobId).classList.remove('hidden');
+    document.body.style.overflow = 'hidden'; 
+}
+
+function closeDeleteModal(jobId) {
+    document.getElementById('deleteModal-' + jobId).classList.add('hidden');
+    document.body.style.overflow = 'auto'; 
+}
+
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        const modals = document.querySelectorAll('[id^="deleteModal-"]');
+        modals.forEach(modal => {
+            if (!modal.classList.contains('hidden')) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        });
+    }
+});
+
+document.addEventListener('click', function(event) {
+    const modals = document.querySelectorAll('[id^="deleteModal-"]');
+    modals.forEach(modal => {
+        if (event.target === modal) {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+    });
 });
 </script>
 {% endblock %}

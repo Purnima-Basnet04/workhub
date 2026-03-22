@@ -11,7 +11,7 @@ def landingPage(request):
 def dashboard(request):
     try:
         profile = request.user.profile
-        recommended_jobs = recommend_jobs(profile, top_n=5)
+        recommended_jobs = recommend_jobs(profile, top_n=6)
     except Profile.DoesNotExist:
         recommended_jobs = []
         

@@ -1,7 +1,7 @@
 {% extends 'layouts/main.html' %}
 {% block content %}
 <div class="min-h-screen bg-gray-50 py-8">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="max-w-[90%] mx-auto px-4 sm:px-6 lg:px-8">
     <div class="mb-6">
       <a href="{% url 'jobs' %}" class="inline-flex items-center text-sm text-gray-600 hover:text-cyan-600 transition duration-300">
         <i class="fas fa-arrow-left mr-2"></i>
@@ -180,7 +180,7 @@
         <div>
           <p class="font-semibold text-gray-900 text-lg">{{job.company.name}}</p>
           <p class="text-sm text-gray-600">{{ job.company.industry }}</p>
-           <p class="text-sm text-gray-600">{{ job.company.created_by }}</p>
+          <p class="text-sm text-gray-600">{{ job.company.created_by }}</p>
         </div>
       </div>
     </div>

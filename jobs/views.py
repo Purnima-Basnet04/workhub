@@ -7,6 +7,7 @@ from .forms import JobForm
 from skills.models import Skill
 from django.db.models import Q
 from applications.models import Application
+from django.core.paginator import Paginator
 
 def job_list(request):
     jobs = Job.objects.filter(is_active=True)
@@ -62,14 +63,26 @@ def job_list(request):
     else:  
         jobs = jobs.order_by('-created_at')
     jobs = jobs.select_related('recruiter').prefetch_related('skills')
+    
+    paginator = Paginator(jobs, 6)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
     application_statuses = {}
     if request.user.is_authenticated:
-        user_applications = Application.objects.filter(applicant=request.user, job__in=jobs).values('job_id', 'status')
+        page_job_ids = [job.id for job in page_obj.object_list]
+        user_applications = Application.objects.filter(applicant=request.user, job_id__in=page_job_ids).values('job_id', 'status')
         application_statuses = {app['job_id']: app['status'] for app in user_applications}
-    jobs = list(jobs)
+    jobs = list(page_obj.object_list)
     for job in jobs:
         job.application_status = application_statuses.get(job.id, None)
-    return render(request, "pages/jobs/job_list.html", {'jobs': jobs, 'employment_type_choices': Job.EMPLOYMENT_TYPE_CHOICES, 'work_mode_choices': Job.WORK_MODE_CHOICES})
+    return render(request, "pages/jobs/job_list.html", {
+        'jobs': jobs, 
+        'page_obj': page_obj,
+        'is_paginated': page_obj.has_other_pages(),
+        'employment_type_choices': Job.EMPLOYMENT_TYPE_CHOICES, 
+        'work_mode_choices': Job.WORK_MODE_CHOICES
+    })
 
 @login_required(login_url='/user/login')
 def job_create(request):
