@@ -23,13 +23,15 @@ from main import settings
 from .views import *
 
 urlpatterns = [
+    path('admin/logout/', AdminLogoutRedirectView.as_view(), name='admin_logout_redirect'),
     path('admin/', admin.site.urls),
     path('', landingPage),
     path('user/', include('users.urls') ),
     path('dashboard/', dashboard ),
     path('jobs/', include('jobs.urls') ),
     path('company/', include('companies.urls') ),
-    path('applications/', include('applications.urls') ),
+    path('applications/', include('applications.urls')),
+    path('notifications/', include('notifications.urls')),
 ]
 
 if settings.DEBUG:

@@ -1,8 +1,9 @@
 from django.contrib import admin
+from unfold.admin import ModelAdmin
+from unfold.decorators import action
+from .models import Skill
 
-from .models import *
-
-class SkillAdmin(admin.ModelAdmin):
+class SkillAdmin(ModelAdmin):
     list_display = ['id', 'name', 'is_active']
-    
+
 admin.site.register(Skill, SkillAdmin)

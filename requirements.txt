@@ -6,3 +6,4 @@ python-dotenv
 whitenoise
 pillow
 scikit-learn
+django-unfold

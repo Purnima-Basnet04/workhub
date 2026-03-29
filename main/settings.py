@@ -35,6 +35,7 @@ ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 # Application definition
 
 INSTALLED_APPS = [
+    'unfold',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -73,6 +74,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'notifications.context_processors.notification_data',
             ],
         },
     },
@@ -138,6 +140,9 @@ STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT= os.path.join(BASE_DIR, 'media')
 
+# Project-level static assets
+STATICFILES_DIRS = [BASE_DIR / 'static']
+
 # Folder where collectstatic will copy all files
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
@@ -157,4 +162,6 @@ EMAIL_VERIFICATION_TOKEN_EXPIRY_HOURS = 24
 # OTP Settings
 OTP_EXPIRY_HOURS = 24  # OTP valid for 24 hours
 OTP_RESEND_COOLDOWN_SECONDS = 60  # Cannot resend OTP within 1 minute
-"" 
+
+# Django Unfold Configuration (Customized Admin UI)
+from .unfold import UNFOLD
