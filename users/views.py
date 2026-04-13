@@ -665,3 +665,5 @@ def reset_password(request):
             return redirect("/user/login")
     
     return render(request, "pages/users/new_password.html", {"errors": errors})
+def terms_view(request):
+    return render(request, "pages/users/terms.html")

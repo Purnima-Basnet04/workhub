@@ -15,10 +15,15 @@ class UserRegistrationForm(UserCreationForm):
     username = forms.CharField(required=True, min_length=3, max_length=15)
     first_name = forms.CharField(required=True, min_length=2, max_length=25)
     last_name = forms.CharField(required=True, min_length=2, max_length=25)
+    agree_terms = forms.BooleanField(
+        required=True,
+        widget=forms.CheckboxInput(attrs={'class': CHECKBOX_CLASSES}),
+        label="I agree to Terms and Conditions"
+    )
 
     class Meta:
         model = User
-        fields = ("username", "email", "password1", "password2", "first_name", "last_name")
+        fields = ("username", "email", "password1", "password2", "first_name", "last_name", "agree_terms")
 
     def clean_email(self):
         email = self.cleaned_data.get("email")

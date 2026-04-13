@@ -32,4 +32,5 @@ urlpatterns = [
     path("password-reset-otp/", password_reset_otp, name="password-reset-otp"),
     path("resend-password-reset-otp/", resend_password_reset_otp, name="resend-password-reset-otp"),
     path("reset-password/", reset_password, name="reset-password"),
+    path("terms/", terms_view, name="terms"),
 ]
